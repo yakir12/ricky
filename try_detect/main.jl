@@ -18,6 +18,6 @@ detector.nThreads = 4
 
 camera = Ref(Camera(cm480))
 
-for i in 1:100
+while true
     report(snap!(camera[]))
 end
