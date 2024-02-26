@@ -13,7 +13,7 @@ function switch!(current, next)
     next[] = nothing
 end
 
-detector = AprilTagDetector(tagfamily=AprilTags.tag16h5)
+detector = AprilTagDetector(AprilTags.tag16h5)
 detector.nThreads = 4
 
 camera = Ref(Camera(cm480))
