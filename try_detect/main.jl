@@ -3,7 +3,7 @@ using AprilTags
 include("camera.jl")
 
 function report(img)
-    tags = detector(img)
+    tags = detector(collect(img))
     msg = isempty(tags) ? "nothing detected" : join((tag.id for tag in tags), ",")
     println(msg)
 end
