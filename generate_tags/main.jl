@@ -20,6 +20,7 @@ function plot1tag!(ax, w, ratio, id, offset, color)
     poly!(ax, Rect2(offset..., w, w), color = :white)
     path = get_path(id, ratio)
     poly!(ax, path + offset; color)
+    poly!(ax, Rect2(0, 0, w, w) + offset; color=:transparent, strokecolor=:black, strokewidth=0.1)
 end
 
 const mm2pt = 72/25.4 # multiply mm to get points
@@ -35,11 +36,11 @@ for (offset0, tag_width) in zip((Point2(150, 250), Point2(300, 500)), (3, 3.5)) 
     ids = 0:29
     # offset0 = Point2(a4...) / 2 - Point2(5w, 6w)
 
-    xticks = range(start=offset0[1], step=w, length=2*5 + 1)
-    yticks = range(start=offset0[2], step=w, length=2*6 + 1)
-    buff = 20
-    vlines!(ax, xticks; ymin = (yticks[1] - buff)/a4[2], ymax = (yticks[end] + buff)/a4[2], color=:gray, linewidth=0.5)
-    hlines!(ax, yticks; xmin = (xticks[1] - buff)/a4[1], xmax = (xticks[end] + buff)/a4[1], color=:gray, linewidth=0.5)
+    # xticks = range(start=offset0[1], step=w, length=2*5 + 1)
+    # yticks = range(start=offset0[2], step=w, length=2*6 + 1)
+    # buff = 20
+    # vlines!(ax, xticks; ymin = (yticks[1] - buff)/a4[2], ymax = (yticks[end] + buff)/a4[2], color=:gray, linewidth=0.5)
+    # hlines!(ax, yticks; xmin = (xticks[1] - buff)/a4[1], xmax = (xticks[end] + buff)/a4[1], color=:gray, linewidth=0.5)
     for (ij, color) in enumerate(colors), (xy, id) in enumerate(ids)
         i, j = Tuple(CartesianIndices((2, 2))[ij])
         x, y = Tuple(CartesianIndices((5, 6))[xy])
