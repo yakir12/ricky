@@ -20,7 +20,7 @@ function plot1tag!(ax, w, ratio, id, offset, color)
     poly!(ax, Rect2(offset..., w, w), color = :white)
     path = get_path(id, ratio)
     poly!(ax, path + offset; color)
-    poly!(ax, Rect2(0, 0, w, w) + offset; color=:transparent, strokecolor=:black, strokewidth=0.1)
+    # poly!(ax, Rect2(0, 0, w, w) + offset; color=:transparent, strokecolor=:black, strokewidth=0.1)
 end
 
 const mm2pt = 72/25.4 # multiply mm to get points
@@ -29,7 +29,7 @@ const a4 = (595, 842)
 
 fig = Figure(size=a4, figure_padding = 0);
 ax = Axis(fig[1, 1], aspect = DataAspect(), limits = (0, a4[1], 0, a4[2]))
-for (offset0, tag_width) in zip((Point2(150, 250), Point2(300, 500)), (3, 3.5)) # mm
+for (offset0, tag_width) in zip((Point2(150, 250), Point2(300, 500)), (3.5, 8)) # mm
     ratio = tag_width/tag_bytes*mm2pt
     w = tag_width*mm2pt
     colors = distinguishable_colors(4, [RGB(1,1,1)], dropseed=true)
@@ -46,6 +46,7 @@ for (offset0, tag_width) in zip((Point2(150, 250), Point2(300, 500)), (3, 3.5)) 
         x, y = Tuple(CartesianIndices((5, 6))[xy])
         offset1 = Point2((i - 1)*5w, (j - 1)*6w)
         offset2 = Point2((x - 1)*w, (y - 1)*w)
+        # offset3 = Point2((x - 1)*0.1w, (y - 1)*0.1w)
         plot1tag!(ax, w, ratio, id, offset0 + offset1 + offset2, color)
     end
     hidedecorations!(ax)
