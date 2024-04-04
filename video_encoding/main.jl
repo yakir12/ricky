@@ -35,12 +35,14 @@ save("v.jpg", to_img(v))
 
 lkgflkdshlfdkhglfdshglkdgs
 
+using FileIO, ImageIO
+
 Y = load("/home/yakir/Y.jpg")
 u = load("/home/yakir/u.jpg")
 v = load("/home/yakir/v.jpg")
 
-img = RGB.(splat(YCbCr).(zip(rawview(N0f8.(channelview(restrict(Y)[2:end, 2:end]))), rawview(channelview(u)), rawview(channelview(v)))))
-save("img.jpg", img)
+# img = RGB.(splat(YCbCr).(zip(rawview(N0f8.(channelview(restrict(Y)[2:end, 2:end]))), rawview(channelview(u)), rawview(channelview(v)))))
+# save("img.jpg", img)
 
 
 using AprilTags
@@ -64,47 +66,99 @@ detector.nThreads = 4
 tags = detector(Y)
 filter!(tag -> good(tag.p), tags)
 
-drawables = [Polygon([Point(round.(Int, p)...) for p in tag.p]) for tag in tags]
-img = RGB.(Y)
-draw!(img, drawables, colorant"red")
-save("Y2.jpg", img)
-drawables = [Polygon([Point(round.(Int, p ./ 2)...) for p in tag.p]) for tag in tags]
-img = RGB.(u)
-draw!(img, drawables, colorant"red")
-save("u2.jpg", img)
-img = RGB.(v)
-draw!(img, drawables, colorant"red")
-save("v2.jpg", img)
-
-
-using ImageTransformations, CoordinateTransformations, LinearAlgebra
-id = 0
-img = getAprilTagImage(id, AprilTags.tag16h5)
-save("tag.jpg", img)
-
-ts = filter(t -> t.id == id, tags)
-tag = ts[1]
-push1(x) = CoordinateTransformations.push(x, 1)
-s = 10
-scale = inv(SDiagonal(s, s, 1))
-M = LinearMap(SMatrix{3,3, Float64}(tag.H * scale))
-# scale = LinearMap(SDiagonal(s, s))
-itform = reverse ∘ PerspectiveMap() ∘ M ∘ push1
-# tform = PerspectiveMap() ∘ inv(M) ∘ push1
-# tform.(itform.(tform.(SV.(tag.p))))
-# Yi = convex_quadrilateral_to_indices_Y(tag.p)
+# drawables = [Polygon([Point(round.(Int, p)...) for p in tag.p]) for tag in tags]
 # img = RGB.(Y)
-# img[Yi] .= colorant"red"
-# save("Yi.jpg", img)
-# x1, x2 = round.(Int, extrema(first, tag.p))
-# y1, y2 = round.(Int, extrema(last, tag.p))
-# ImageTransformations.autorange(CartesianIndices((x1:x2, y1:y2)), tform)
-# tform.([SV(x1, y1), SV(x1, y2), SV(x2, y1), SV(x2, y2)])
-# for x in (-1, 1), y in (-1, 1)
-#     @show itform(SV(x*s, y*s))
-# end
-wimg = warp(Y, itform, (-s:s, -s:s))
-save("tag.jpg", collect(wimg))
+# draw!(img, drawables, colorant"red")
+# save("Y2.jpg", img)
+# drawables = [Polygon([Point(round.(Int, p ./ 2)...) for p in tag.p]) for tag in tags]
+# img = RGB.(u)
+# draw!(img, drawables, colorant"red")
+# save("u2.jpg", img)
+# img = RGB.(v)
+# draw!(img, drawables, colorant"red")
+# save("v2.jpg", img)
+
+
+using Statistics
+using ImageCore, ImageTransformations, CoordinateTransformations, LinearAlgebra
+using Interpolations
+
+const SV = SVector{2, Float64}
+
+
+function get_all_indices()
+    out = Dict{Int, Vector{SV}}()
+    for id in 0:29
+        img = getAprilTagImage(id, AprilTags.tag16h5)
+        indices = findall(==(zero(eltype(img))), img)
+        out[id] = SV.(Tuple.(indices))
+    end
+    return out
+end
+rawchannel = rawview ∘ channelview
+push1(x) = CoordinateTransformations.push(x, 1)
+function get_colors(tag, yitp, uitp, vitp)
+    s = 3.5
+    scale = inv(SDiagonal(s, s, 1))
+    M = LinearMap(SMatrix{3,3, Float64}(tag.H * scale))
+    trans = Translation(-4.5, -4.5)
+    itform = reverse ∘ PerspectiveMap() ∘ M ∘ push1 ∘ trans ∘ reverse
+    itform2 = half ∘ itform
+    ys = [yitp(itform(xy)...) for xy in indices[tag.id]]
+    us = [uitp(itform2(xy)...) for xy in indices[tag.id]]
+    vs = [vitp(itform2(xy)...) for xy in indices[tag.id]]
+    V = RGB.(YCbCr.(ys, us, vs))
+end
+
+indices = get_all_indices()
+half = LinearMap(SDiagonal(1/2, 1/2))
+
+yitp = interpolate(rawchannel(Y), BSpline(Linear()))
+uitp = interpolate(rawchannel(u), BSpline(Linear()))
+vitp = interpolate(rawchannel(v), BSpline(Linear()))
+
+id = 1
+ts = filter(t -> t.id == id, tags)
+
+map(ts) do tag
+    mean(get_colors(tag, yitp, uitp, vitp))
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 function convex_quadrilateral_to_indices_Y(cql)
@@ -158,7 +212,6 @@ for id in 0:29
     draw!(img, drawables4, colorant"red")
     save("v2.jpg", img)
 
-    const SV = SVector{2, Float64}
 
     SV(xy::Point) = SV(xy.y, xy.x)
 
