@@ -27,12 +27,17 @@ const mm2pt = 72/25.4 # multiply mm to get points
 const tag_bytes = 8 # due to the family
 const a4 = (595, 842)
 
+# colors = distinguishable_colors(4, [RGB(1,1,1)], dropseed=true)
+colors = [RGB(0,0,0),
+          RGB(1,0,0),
+          RGB(0,1,0),
+          RGB(0,0,1)]
+
 fig = Figure(size=a4, figure_padding = 0);
 ax = Axis(fig[1, 1], aspect = DataAspect(), limits = (0, a4[1], 0, a4[2]))
 for (offset0, tag_width) in zip((Point2(150, 250), Point2(300, 500)), (3.5, 8)) # mm
     ratio = tag_width/tag_bytes*mm2pt
     w = tag_width*mm2pt
-    colors = distinguishable_colors(4, [RGB(1,1,1)], dropseed=true)
     ids = 0:29
     # offset0 = Point2(a4...) / 2 - Point2(5w, 6w)
 

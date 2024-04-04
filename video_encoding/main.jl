@@ -39,15 +39,20 @@ Y = load("/home/yakir/Y.jpg")
 u = load("/home/yakir/u.jpg")
 v = load("/home/yakir/v.jpg")
 
+img = RGB.(splat(YCbCr).(zip(rawview(N0f8.(channelview(restrict(Y)[2:end, 2:end]))), rawview(channelview(u)), rawview(channelview(v)))))
+save("img.jpg", img)
+
+
 using AprilTags
 import AngleBetweenVectors:angle
 using ImageDraw
 using ColorTypes
+using StaticArrays
 
 function good(p)
     for i in 1:4
         p1, p2, p3, _ = circshift(p, i)
-        if !isapprox(angle(p1 .- p2, p3 .- p2), π/2; atol=0.3)
+        if !isapprox(angle(p1 .- p2, p3 .- p2), π/2; atol=0.2)
             return false
         end
     end
@@ -57,89 +62,216 @@ end
 detector = AprilTagDetector(AprilTags.tag16h5)
 detector.nThreads = 4
 tags = detector(Y)
-drawables = [Polygon([Point(round.(Int, p)...) for p in tag.p]) for tag in tags if good(tag.p)]
+filter!(tag -> good(tag.p), tags)
 
+drawables = [Polygon([Point(round.(Int, p)...) for p in tag.p]) for tag in tags]
 img = RGB.(Y)
 draw!(img, drawables, colorant"red")
-
 save("Y2.jpg", img)
-
-drawables4 = [Polygon([Point(round.(Int, p/2)...) for p in tag.p]) for tag in tags if good(tag.p)]
-
+drawables = [Polygon([Point(round.(Int, p ./ 2)...) for p in tag.p]) for tag in tags]
 img = RGB.(u)
-draw!(img, drawables4, colorant"red")
+draw!(img, drawables, colorant"red")
 save("u2.jpg", img)
-
 img = RGB.(v)
-draw!(img, drawables4, colorant"red")
+draw!(img, drawables, colorant"red")
 save("v2.jpg", img)
 
-SV(xy::Point) = SV(xy.y, xy.x)
 
-w = 10
-window = CartesianIndices((-w:w, -w:w))
-function convex_quadrilateral_to_indices(cql)
-    c = mean(SV, cql)
+using ImageTransformations, CoordinateTransformations, LinearAlgebra
+id = 0
+img = getAprilTagImage(id, AprilTags.tag16h5)
+save("tag.jpg", img)
+
+ts = filter(t -> t.id == id, tags)
+tag = ts[1]
+push1(x) = CoordinateTransformations.push(x, 1)
+s = 10
+scale = inv(SDiagonal(s, s, 1))
+M = LinearMap(SMatrix{3,3, Float64}(tag.H * scale))
+# scale = LinearMap(SDiagonal(s, s))
+itform = reverse ∘ PerspectiveMap() ∘ M ∘ push1
+# tform = PerspectiveMap() ∘ inv(M) ∘ push1
+# tform.(itform.(tform.(SV.(tag.p))))
+# Yi = convex_quadrilateral_to_indices_Y(tag.p)
+# img = RGB.(Y)
+# img[Yi] .= colorant"red"
+# save("Yi.jpg", img)
+# x1, x2 = round.(Int, extrema(first, tag.p))
+# y1, y2 = round.(Int, extrema(last, tag.p))
+# ImageTransformations.autorange(CartesianIndices((x1:x2, y1:y2)), tform)
+# tform.([SV(x1, y1), SV(x1, y2), SV(x2, y1), SV(x2, y2)])
+# for x in (-1, 1), y in (-1, 1)
+#     @show itform(SV(x*s, y*s))
+# end
+wimg = warp(Y, itform, (-s:s, -s:s))
+save("tag.jpg", collect(wimg))
+
+
+function convex_quadrilateral_to_indices_Y(cql)
+    c = reverse(mean(SV, cql))
+    w = 24
+    window = CartesianIndices((-w:w, -w:w))
     return window .+ CartesianIndex(round.(Int, c)...)
 end
-function uv_indices(Yi)
-    (x, y) = Yi.indices
-    CartesianIndices(((x.start÷2:x.stop÷2), (y.start÷2:y.stop÷2)))
+function convex_quadrilateral_to_indices_uv(cql)
+    c = reverse(mean(SV, cql)) ./ 2
+    w = 12
+    window = CartesianIndices((-w:w, -w:w))
+    return window .+ CartesianIndex(round.(Int, c)...)
 end
-
-rect = drawables[2]
-Yi = convex_quadrilateral_to_indices(rect.vertices)
-uvi = uv_indices(Yi)
-img = RGB.(Y)
-draw!(img, rect, colorant"red")
-save("img.jpg", img)
-
-function yuv2rgb(Y, U, V)
-    Y = Y - 16
-    U = U - 128
-    V = V - 128
-    R = 1.164 * Y             + 1.596 * V
-    G = 1.164 * Y - 0.392 * U - 0.813 * V
-    B = 1.164 * Y + 2.017 * U
-    RGB(R/255, G/255, B/255)
-end
-
-img = [yuv2rgb(255gray(y), Int(reinterpret(UInt8, u)), Int(reinterpret(UInt8, v))) for (y, u, v) in zip(restrict(Y[Yi]), u[uvi], v[uvi])]
-
-using ImageTransformations
-
-img = colorview(Luv, gray.(restrict(Y[Yi])), gray.(u[uvi]), gray.(v[uvi]))
-
-save("img.jpg", RGB.(img))
+# function uv_indices(Yi)
+#     (x, y) = Yi.indices
+#     CartesianIndices(((x.start÷2:x.stop÷2), (y.start÷2:y.stop÷2)))
+# end
 
 
 
+for id in 0:29
 
+    id = 0
+    ts = filter(t -> t.id == id, tags)
 
-using Colors, ColorVectorSpace
-using FixedPointNumbers
-const CoN0 = RGB{N0f8}
-
-function classify(v, colors)
-    indices = partialsortperm(v, 1:10, by = x -> Gray(x))
-    ss = zeros(length(colors))
-    for (i, color) in enumerate(colors), j in indices
-        ss[i] += colordiff(color, v[j])
+    for (i, tag) in enumerate(ts)
+        # tag = ts[1]
+        Yi = convex_quadrilateral_to_indices_Y(tag.p)
+        uvi = convex_quadrilateral_to_indices_uv(tag.p)
+        yuv = splat(YCbCr).(zip(rawview(N0f8.(channelview(restrict(Y[Yi])))), rawview(channelview(u[uvi])), rawview(channelview(v[uvi]))))
+        drawable = Polygon([Point(round.(Int, p)...) for p in tag.p])
+        img = RGB.(yuv)
+        draw!(img, drawable, RGB{Float32}(colorant"red"))
+        save("$(tag.id)-$i.jpg", img)
     end
-    return last(findmin(ss))
-end
-colors = distinguishable_colors(ncolor, [RGB(1,1,1)], dropseed=true)
 
-rand_rgb(n) = 2rand(CoN0, n) .- one(CoN0)
-n = 100
-n1 = n ÷ 2
-factor = 2.7
-for ncolor in 4:4, target in 1:ncolor
-    colors = distinguishable_colors(ncolor, [RGB(1,1,1)], dropseed=true)
-    img = fill(colors[target], n) .+ rand_rgb(n) ./ factor
-    img[rand(1:n, n1)] .= fill(one(CoN0), n1) .+ rand_rgb(n1) ./ factor
-    if classify(img, colors) ≠ target
-        @show (ncolor, target)
+
+
+
+
+
+
+    drawables4 = [Polygon([Point(round.(Int, p/2)...) for p in tag.p]) for tag in tags if good(tag.p)]
+
+    img = RGB.(u)
+    draw!(img, drawables4, colorant"red")
+    save("u2.jpg", img)
+
+    img = RGB.(v)
+    draw!(img, drawables4, colorant"red")
+    save("v2.jpg", img)
+
+    const SV = SVector{2, Float64}
+
+    SV(xy::Point) = SV(xy.y, xy.x)
+
+    using Statistics
+
+    w = 10
+    window = CartesianIndices((-w:w, -w:w))
+    function convex_quadrilateral_to_indices(cql)
+        c = mean(SV, cql)
+        return window .+ CartesianIndex(round.(Int, c)...)
     end
-end
+    function uv_indices(Yi)
+        (x, y) = Yi.indices
+        CartesianIndices(((x.start÷2:x.stop÷2), (y.start÷2:y.stop÷2)))
+    end
 
+    rect = drawables[2]
+    Yi = convex_quadrilateral_to_indices(rect.vertices)
+    uvi = uv_indices(Yi)
+
+    img = RGB.(Y)
+    draw!(img, rect, colorant"red")
+    save("img.jpg", img)
+
+    using ImageTransformations
+
+    # img = colorview(YCbCr, restrict(Y[Yi]), Gray{Float32}.(u[uvi]), Gray{Float32}.(v[uvi]))
+
+    # colorview(YCbCr, rawview(N0f8.(channelview(restrict(Y[Yi])))), rawview(channelview(u[uvi])), rawview(channelview(v[uvi])))
+
+    img = splat(YCbCr).(zip(rawview(N0f8.(channelview(restrict(Y[Yi])))), rawview(channelview(u[uvi])), rawview(channelview(v[uvi]))))
+    save("img.jpg", RGB{N0f8}.(img))
+
+    xy = map([Polygon([Point(round.(Int, p)...) for p in tag.p]) for tag in tags if tag.id == 1]) do rect
+        Yi = convex_quadrilateral_to_indices(rect.vertices)
+        uvi = uv_indices(Yi)
+        (; u = gray.(vec(u[uvi])), v = gray.(vec(v[uvi])))
+        # img = splat(YCbCr).(zip(rawview(N0f8.(channelview(restrict(Y[Yi])))), rawview(channelview(u[uvi])), rawview(channelview(v[uvi]))))
+        # vec(img)
+    end
+
+    using GLMakie
+
+    fig = Figure()
+    ax = Axis(fig[1, 1], xlabel="U", ylabel="V")
+    scatter!(ax, xy[1].u, xy[1].v)
+    scatter!(ax, xy[2].u, xy[2].v)
+    scatter!(ax, xy[3].u, xy[3].v)
+    scatter!(ax, xy[3].u, xy[3].v)
+
+    function classify(v, colors)
+        indices = partialsortperm(v, 1:50, by = x -> x.y)
+        ss = zeros(length(colors))
+        for (i, color) in enumerate(colors), j in indices
+            ss[i] += colordiff(color, v[j])
+        end
+        @show ss
+        return last(findmin(ss))
+    end
+    ncolor = 4
+    colors = distinguishable_colors(ncolor, [YCbCr(RGB{N0f8}(1,1,1))], dropseed=true)
+    classify(vec(img), colors)
+
+
+
+
+    patches = Dict("black" => decompose(Point2f, Rect(2391, 1644, 136, 160)),
+                   "green" => decompose(Point2f, Rect(2241, 1469, 131, 157)),
+                   "magenta" => decompose(Point2f, Rect(2243, 1647, 131, 157)),
+                   "orange" => decompose(Point2f, Rect(2391, 1466, 131, 158))
+                  )
+
+
+    w = 40
+    # window = CartesianIndices((-w:w, -w:w))
+    # Yi = convex_quadrilateral_to_indices(patch)
+    # i = deepcopy(Y)
+    # i[Yi] .= zero(i[1])
+    # image(i)
+
+    function norm01(x)
+        x .-= minimum(x)
+        x ./= maximum(x)
+        x
+    end
+    xy = Dict()
+    for (k, patch) in patches
+        # k, patch = first(patches)
+        Yi = convex_quadrilateral_to_indices(patch)
+        uvi = uv_indices(Yi)
+        img = splat(YCbCr).(zip(rawview(N0f8.(channelview(restrict(Y[Yi])))), rawview(channelview(u[uvi])), rawview(channelview(v[uvi]))))
+        V = vec(img)
+        hsi = normalize_hue.(HSI.(V))
+        indices = partialsortperm(hsi, 1:100, by = x -> x.i / x.s)
+        # img = RGB.(img)
+        # img[indices] .= RGB{Float32}(1,0,0)
+        # image(img)
+        xy[k] = (; h = hue.(hsi[indices]), weights = AnalyticWeights([hsi[i].s for i in indices]))
+        # scatter(getfield.(xy, :s), getfield.(xy, :i), axis=(xlabel="Saturation", ylabel="Intensity"))
+        # hist(getfield.(xy, :s) ./ getfield.(xy, :i))
+    end
+    x = repeat(1:length(xy), inner=10)
+    y = vcat([v.h for v in values(xy)]...)
+    weights = vcat([v.weights for v in values(xy)]...)
+    violin(x, y; weights, datalimits = extrema, axis=(;xticks=(1:length(xy), collect(keys(xy)))))
+
+    fig = Figure()
+    ax = Axis(fig[1, 1], xlabel="U", ylabel="V", aspect=DataAspect())
+    for (k, v) in xy
+        scatter!(ax, v.u, v.v, label=k, markersize=25)
+    end
+    # scatter!(ax, xy[1].u, xy[1].v, label="black", color=colors[1], marker='x', markersize=25)
+    # scatter!(ax, xy[2].u, xy[2].v, label="green", color=colors[4], marker='o', markersize=25)
+    # scatter!(ax, xy[3].u, xy[3].v, label="magenta", color=colors[2], marker='*', markersize=25)
+    # scatter!(ax, xy[4].u, xy[4].v, label="orange", color=colors[3], marker='□', markersize=25)
+    axislegend(ax)
