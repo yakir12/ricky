@@ -107,7 +107,7 @@ function get_colors(tag, yitp, uitp, vitp)
     ys = [yitp(itform(xy)...) for xy in indices[tag.id]]
     us = [uitp(itform2(xy)...) for xy in indices[tag.id]]
     vs = [vitp(itform2(xy)...) for xy in indices[tag.id]]
-    V = RGB.(YCbCr.(ys, us, vs))
+    V = HSI.(YCbCr.(ys, us, vs))
 end
 
 indices = get_all_indices()
@@ -120,8 +120,23 @@ vitp = interpolate(rawchannel(v), BSpline(Linear()))
 id = 1
 ts = filter(t -> t.id == id, tags)
 
+h = map(ts) do tag
+    colors = get_colors(tag, yitp, uitp, vitp)
+    # getfield.(colors, :i)
+    hue.(colors)
+end
+h = vcat(h...)
+groups = repeat(1:4, inner = 28)
+violin(groups, h)
+
+
+
 map(ts) do tag
-    mean(get_colors(tag, yitp, uitp, vitp))
+    αs = hue.(get_colors(tag, yitp, uitp, vitp))
+    yx = mean(α -> SV(sincosd(α)), αs)
+    μ = atand(yx...)
+    σ = 1 - norm(yx)
+    (; μ, σ)
 end
 
 
