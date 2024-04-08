@@ -1,4 +1,4 @@
 [deps]
-DetectBe = "c86466f9-8608-4f9a-b599-42c5e41d9d5d"
+DetectBees = "c86466f9-8608-4f9a-b599-42c5e41d9d5d"
 FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
 ImageIO = "82e4d734-157c-48bb-816b-45c225c6df19"

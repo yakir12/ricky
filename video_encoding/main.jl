@@ -1,3 +1,12 @@
+using DetectBe
+
+using FileIO, ImageIO
+Y = load("/home/yakir/Y.jpg")
+u = load("/home/yakir/u.jpg")
+v = load("/home/yakir/v.jpg")
+
+ids, xy = get_tags(Y, u, v)
+
 using ColorTypes, ImageCore
 
 w, h = (4056, 3040) # works

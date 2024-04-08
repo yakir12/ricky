@@ -2,7 +2,7 @@
 
 julia_version = "1.10.2"
 manifest_format = "2.0"
-project_hash = "23a72b326e74755015ee3df1777f5cf8b5db7218"
+project_hash = "3360847f0743376bd97810d7e29aa7e252a52341"
 
 [[deps.Adapt]]
 deps = ["LinearAlgebra", "Requires"]
@@ -124,9 +124,9 @@ version = "0.18.18"
 deps = ["Printf"]
 uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
 
-[[deps.DetectBe]]
+[[deps.DetectBees]]
 deps = ["AngleBetweenVectors", "AprilTags", "ColorTypes", "CoordinateTransformations", "ImageCore", "ImageTransformations", "Interpolations", "LinearAlgebra", "StaticArrays", "Statistics"]
-path = "DetectBe"
+path = "DetectBees"
 uuid = "c86466f9-8608-4f9a-b599-42c5e41d9d5d"
 version = "0.1.0"
 
