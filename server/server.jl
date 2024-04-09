@@ -1,26 +1,18 @@
 using DetectBees
 
-using FileIO
-
-Y = load("/home/yakir/Y.jpg")
-u = load("/home/yakir/u.jpg")
-v = load("/home/yakir/v.jpg")
-
-ids, xy = get_tags(Y, u, v)
-
-
 using ImageCore, ImageTransformations
 using Oxygen
 
-const buffer = Matrix{N0f8}(undef, 400, 400)
+sz = Int.((4056, 3040) ./ 8)
+const buffer = Matrix{N0f8}(undef, sz)
 
-set_setup, get_bytes, get_state, task = main();
+get_Y, get_tags, task = main();
 
-frame() = binary(collect(vec(rawview(imresize!(buffer, normedview(get_bytes()))))))
+frame() = binary(collect(vec(rawview(imresize!(buffer, normedview(get_Y()))))))
 
 @get "/frame" frame
 
-@get "/beed" get_tags
+@get "/bees" get_tags
 
 # @post "/setup" function(req)
 #     set_setup(json(req, Dict))
