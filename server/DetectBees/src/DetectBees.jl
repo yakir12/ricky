@@ -34,7 +34,7 @@ function main()
     tags = Ref([(id = "", xy = zero(SV))])
     task = Threads.@spawn while true
         snap!(cam)
-        @time tags[] = detect(cam)
+        tags[] = detect(cam)
     end
     return (
             () -> collect(cam.Y),
