@@ -8,7 +8,8 @@ const camera = (4056, 3040)
 const ratio = 8
 const sz = camera .÷ ratio
 const fps = 5
-const ip = "http://192.168.135.111:8000" # through ethernet
+# const ip = "http://192.168.135.111:8000" # through ethernet
+const ip = "http://192.168.135.165:8000" # through ethernet
 const face = findfont("dejavu")
 const pixelsize = 10
 

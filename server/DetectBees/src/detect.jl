@@ -48,9 +48,10 @@ function classify_tag(id, H, itp)
 end
 
 function detect(cam::Camera)
-    tags = cam.detector(collect(cam.Y))
+    task = @async cam.detector(collect(cam.Y))
     itp = (Y = splat(interpolate(rawchannel(cam.Y), BSpline(Linear()))),
            uv = splat(interpolate(SV.(rawchannel(cam.u), rawchannel(cam.v)), BSpline(Linear()))))
+    tags = fetch(task)
     return [(id = classify_tag(tag.id, tag.H, itp), xy = SV(tag.c)) for tag in tags if good(tag.p)]
 end
 
