@@ -20,7 +20,8 @@ function get_all_indices()
     return out
 end
 
-@enum TagColor black=90 magenta=294 orange=20 green=120
+@enum TagColor black=90 red=0 green=120 blue=240
+# @enum TagColor black=90 magenta=294 orange=20 green=120
 const taghues = Dict(tc => reim(cis(deg2rad(Int(tc)))) for tc in instances(TagColor) if tc ≠ black)
 const indices = get_all_indices()
 const rawchannel = rawview ∘ channelview
