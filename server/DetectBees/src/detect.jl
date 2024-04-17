@@ -31,10 +31,10 @@ function classify_color(cs)
     v = mean(cis ∘ deg2rad ∘ hue ∘ HSI, cs)
     μ = normalize_hue(rad2deg(angle(v)))
     σ = 1 - norm(v)
+    @show σ
     tagcolor = if σ > 0.1
         black
     else
-        @show rad2deg(angle(v))
         vh = reim(v)
         _, tc = findmin(th -> angle(vh, th), taghues)
         tc
