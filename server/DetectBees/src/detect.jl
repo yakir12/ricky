@@ -2,7 +2,7 @@ function good(p)
     # TODO: determine actual tag size and area, filter on that as well
     for i in 1:4
         p1, p2, p3, _ = circshift(p, i)
-        if !isapprox(angle(p1 .- p2, p3 .- p2), π/2; atol=0.1)
+        if !isapprox(angle(p1 .- p2, p3 .- p2), π/2; atol=0.05)
             return false
         end
     end
