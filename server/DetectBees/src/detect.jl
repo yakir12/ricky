@@ -34,6 +34,7 @@ function classify_color(cs)
     tagcolor = if σ > 0.1
         black
     else
+        @show rad2deg(angle(v))
         vh = reim(v)
         _, tc = findmin(th -> angle(vh, th), taghues)
         tc
