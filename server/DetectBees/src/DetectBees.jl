@@ -30,16 +30,23 @@ const half = LinearMap(SDiagonal(1/2, 1/2))
 include("camera.jl")
 include("detect.jl")
 
+function collect_tags!(tags)
+    # res = filter(!isempty ∘ last, tags)
+    res = Dict(k => collect(v) for (k, v) in tags if !isempty(v))
+    @async foreach(empty!, values(tags))
+    return res
+end
+
 function main()
     cam = Camera()
-    tags = Ref([(id = "", xy = zero(SV))])
+    tags = Dict("$id-$color" => CircularBuffer{@NamedTuple{datetime::DateTime, xy::SV}}(1000) for id in 0:29 for color in instances(TagColor))
     task = Threads.@spawn while true
         snap!(cam)
-        tags[] = detect(cam)
+        detect!(cam, tags)
     end
     return (
             () -> collect(cam.Y),
-            () -> (datetime = now(), tags = tags[]),
+            () -> collect_tags!(tags),
             task
            )
 end

@@ -11,7 +11,7 @@ const fps = 5
 # const ip = "http://192.168.135.111:8000" # through ethernet
 const ip = "http://192.168.135.165:8000" # through ethernet
 const face = findfont("dejavu")
-const pixelsize = 10
+const pixelsize = 30
 
 bytes2img(b::Vector{UInt8}) = Color.(colorview(Gray, normedview(reshape(b, sz))))
 
