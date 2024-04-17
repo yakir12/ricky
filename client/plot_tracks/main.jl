@@ -3,7 +3,7 @@ using Dates, HTTP, JSON3, TOML
 
 using Base.Threads
 
-const ip = "http://192.168.135.165:8000" # through ethernet
+const ip = "http://192.168.15.165:8000" # through ethernet
 
 function get_state()
     r = HTTP.request("GET", "$ip/bees")
