@@ -1,7 +1,7 @@
 module DetectBees
 
 using Statistics, LinearAlgebra, Dates
-using ColorTypes, StaticArrays, Interpolations, CoordinateTransformations
+using ColorTypes, StaticArrays, Interpolations, CoordinateTransformations, DataStructures
 using ImageCore, ImageTransformations
 import AprilTags: AprilTagDetector, getAprilTagImage, tag16h5
 import AngleBetweenVectors:angle
