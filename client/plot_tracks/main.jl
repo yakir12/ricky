@@ -1,6 +1,5 @@
 using GLMakie 
 using Dates, HTTP, JSON3, TOML
-
 using Base.Threads
 
 const ip = "http://192.168.15.165:8000" # through ethernet
