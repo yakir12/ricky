@@ -44,7 +44,7 @@ end
 function classify_tag(id, H, itp)
     cs = get_colors(id, H, itp)
     color = classify_color(cs)
-    return "$id-$color"
+    return idcol2index(id, color)
 end
 
 function detect!(cam::Camera, tags)
@@ -54,8 +54,8 @@ function detect!(cam::Camera, tags)
     _tags = fetch(task)
     for tag in _tags
         if good(tag.p)
-            id = classify_tag(tag.id, tag.H, itp)
-            push!(tags[id], (datetime = now(), xy = SV(tag.c)))
+            index = classify_tag(tag.id, tag.H, itp)
+            push!(tags[index], SV(tag.c))
         end
     end
 end

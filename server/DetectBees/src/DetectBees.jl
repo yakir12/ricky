@@ -21,6 +21,11 @@ function get_all_indices()
 end
 
 @enum TagColor black=90 red=0 green=120 blue=240
+
+id2index(id::Int) = id + 1
+color2index(tc::TagColor) = findfirst(==(tc), instances(TagColor))
+idcol2index(id::Int, tc::TagColor) = LinearIndices((30, length(instances(TagColor))))[id2index(id), color2index(tc)]
+
 # @enum TagColor black=90 magenta=294 orange=20 green=120
 const taghues = Dict(tc => reim(cis(deg2rad(Int(tc)))) for tc in instances(TagColor) if tc ≠ black)
 const indices = get_all_indices()
@@ -31,15 +36,14 @@ include("camera.jl")
 include("detect.jl")
 
 function collect_tags!(tags)
-    # res = filter(!isempty ∘ last, tags)
-    res = Dict(k => collect(v) for (k, v) in tags if !isempty(v))
-    @async foreach(empty!, values(tags))
+    res = collect.(values.(tags))
+    @async foreach(empty!, tags)
     return res
 end
 
 function main()
     cam = Camera()
-    tags = Dict("$id-$color" => CircularBuffer{@NamedTuple{datetime::DateTime, xy::SV}}(1000) for id in 0:29 for color in instances(TagColor))
+    tags = [CircularBuffer{SV}(1000) for _ in 1:30length(instances(TagColor))]
     task = Threads.@spawn while true
         snap!(cam)
         detect!(cam, tags)
