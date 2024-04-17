@@ -31,8 +31,7 @@ function classify_color(cs)
     v = mean(cis ∘ deg2rad ∘ hue ∘ HSI, cs)
     μ = normalize_hue(rad2deg(angle(v)))
     σ = 1 - norm(v)
-    @show σ
-    tagcolor = if σ > 0.1
+    tagcolor = if σ > 0.04
         black
     else
         vh = reim(v)
