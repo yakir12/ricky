@@ -2,6 +2,7 @@ using GLMakie
 using Dates, HTTP, JSON3, TOML, DataStructures
 using Base.Threads
 
+@enum TagColor black=90 red=0 green=120 blue=240
 const ip = "http://192.168.15.165:8000" # through ethernet
 
 function get_state()
@@ -18,23 +19,24 @@ end
 
 function main()
 
-    @enum TagColor black=90 red=0 green=120 blue=240
     colors = repeat([Symbol.(instances(TagColor))...], inner=30)
     cache = [Observable(Point2f[]) for _ in 1:120]
     fig = Figure()
-    ax = Axis(fig[1,1], aspect=DataAspect(), limits=(0, 5000, 0, 5000))
+    ax = Axis(fig[1,1], aspect=DataAspect(), limits=(0, 4056, 0, 4056))
     for (xy, color) in zip(cache, colors)
         lines!(ax, xy; color)
     end
     running = Ref(true)
+    get_state() # flush
     state_task = @async while running[]
         set_state!(cache)
         yield()
     end
 
-    running[] = false
-
     display(fig)
+
+    return running
 
 end
 
+# running[] = false

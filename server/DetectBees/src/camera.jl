@@ -35,10 +35,12 @@ struct Camera
     proc::Base.Process
     detector::AprilTagDetector
     function Camera()
-        w = 4056
-        h = 3040
+        # w = 4056
+        # h = 3040
+        w = 2028
+        h = 1520
         buff, Y, u, v = get_buffer_img(w, h)
-        fps = 10
+        fps = 40
         proc = open(`rpicam-vid --denoise cdn_off -n --framerate $fps --width $w --height $h --timeout 0 --codec yuv420 -o -`)
         # eof(proc)
         detector = AprilTagDetector(tag16h5)
