@@ -58,7 +58,7 @@ function main()
     cam = Camera()
     tags = [CircularBuffer{SV}(1000) for _ in 1:30length(instances(TagColor))]
     task = Threads.@spawn while true
-        snap!(cam)
+        # snap!(cam)
         detect!(cam, tags)
         report_bm()
     end

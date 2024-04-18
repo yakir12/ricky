@@ -36,14 +36,18 @@ struct Camera
     detector::AprilTagDetector
     function Camera()
 
-        w, h, fps = (1332,990,120)
+        w, h, fps = (1332,990,120) # 20
         # w, h, fps = (2028,1080,50) # 13
         # w, h, fps = (2028,1520,40) # 10
         # w, h, fps = (4056,3040,10) # 1
 
         buff, Y, u, v = get_buffer_img(w, h)
         proc = open(`rpicam-vid --denoise cdn_off -n --framerate $fps --width $w --height $h --timeout 0 --codec yuv420 -o -`)
-        # eof(proc)
+        eof(proc)
+        Threads.@spawn while isopen(proc)
+            read!(proc, buff)
+            yield()
+        end
         detector = AprilTagDetector(tag16h5)
         set_detector!(detector)
         new(buff, Y, u, v, proc, detector)
@@ -55,5 +59,5 @@ function Base.close(cam::Camera)
     freeDetector!(cam.detector)
 end
 
-snap!(cam::Camera) = read!(cam.proc, cam.buff)
+# snap!(cam::Camera) = read!(cam.proc, cam.buff)
 
