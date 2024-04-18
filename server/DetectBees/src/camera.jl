@@ -36,7 +36,7 @@ struct Camera
     detector::AprilTagDetector
     function Camera()
 
-        w, h, fps = (1332,990,120) # 20
+        w, h, fps = (1332,990,120) # 18
         # w, h, fps = (2028,1080,50) # 13
         # w, h, fps = (2028,1520,40) # 10
         # w, h, fps = (4056,3040,10) # 1

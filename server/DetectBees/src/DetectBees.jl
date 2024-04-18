@@ -70,13 +70,13 @@ end
 
 
 function main()
-    fps = FPS(10)
+    # fps = FPS(10)
     cam = Camera()
     tags = [CircularBuffer{SV}(1000) for _ in 1:30length(instances(TagColor))]
     task = Threads.@spawn while true
         # snap!(cam)
         detect!(cam, tags)
-        tick!(fps)
+        # tick!(fps)
     end
     return (
             () -> collect(cam.Y),
