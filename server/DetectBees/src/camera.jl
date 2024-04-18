@@ -36,10 +36,10 @@ struct Camera
     detector::AprilTagDetector
     function Camera()
 
-        # w, h, fps = (1332,990,120)
+        w, h, fps = (1332,990,120)
         # w, h, fps = (2028,1080,50) # 13
         # w, h, fps = (2028,1520,40) # 10
-        w, h, fps = (4056,3040,10) # ?
+        # w, h, fps = (4056,3040,10) # 1
 
         buff, Y, u, v = get_buffer_img(w, h)
         proc = open(`rpicam-vid --denoise cdn_off -n --framerate $fps --width $w --height $h --timeout 0 --codec yuv420 -o -`)
