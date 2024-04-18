@@ -41,12 +41,26 @@ function collect_tags!(tags)
     return res
 end
 
+const benchmark = Ref(now())
+
+function report_bm()
+    t = now()
+    Δ = t - benchmark[]
+    fps = 1000 ÷ max(1, Dates.value(Δ))
+    benchmark[] = t
+    if fps < 1000
+        println(fps)
+    end
+end
+
+
 function main()
     cam = Camera()
     tags = [CircularBuffer{SV}(1000) for _ in 1:30length(instances(TagColor))]
     task = Threads.@spawn while true
         snap!(cam)
         detect!(cam, tags)
+        report_bm()
     end
     return (
             () -> collect(cam.Y),
