@@ -41,26 +41,42 @@ function collect_tags!(tags)
     return res
 end
 
-const benchmark = Ref(now())
+mutable struct FPS{N}
+    i::Int
+    times::MVector{N, UInt64}
+    FPS{N}() where {N} = (@show N; new(0, MVector{N, UInt64}(1:N)))
+end
+FPS(N::Int) = FPS{N}()
 
-function report_bm()
-    t = now()
-    Δ = t - benchmark[]
-    fps = 1000 ÷ max(1, Dates.value(Δ))
-    benchmark[] = t
-    if fps < 1000
-        println(fps)
+function tick!(fps::FPS{N}) where N
+    fps.i += 1
+    fps.times[fps.i] = time_ns()
+    if fps.i == N
+        println(round(Int, 10^9/mean(diff(fps.times))))
+        fps.i = 0
     end
 end
 
+# const benchmark = Ref(now())
+# function report_bm()
+#     t = now()
+#     Δ = t - benchmark[]
+#     fps = 1000 ÷ max(1, Dates.value(Δ))
+#     benchmark[] = t
+#     if fps < 1000
+#         println(fps)
+#     end
+# end
+
 
 function main()
+    fps = FPS(10)
     cam = Camera()
     tags = [CircularBuffer{SV}(1000) for _ in 1:30length(instances(TagColor))]
     task = Threads.@spawn while true
         # snap!(cam)
         detect!(cam, tags)
-        report_bm()
+        tick!(fps)
     end
     return (
             () -> collect(cam.Y),
