@@ -22,7 +22,7 @@ function main()
     colors = repeat([Symbol.(instances(TagColor))...], inner=30)
     cache = [Observable(Point2f[]) for _ in 1:120]
     fig = Figure()
-    ax = Axis(fig[1,1], aspect=DataAspect(), limits=(0, 4056, 0, 4056))
+    ax = Axis(fig[1,1], aspect=DataAspect(), limits=(0, 2000, 0, 2000))
     for (xy, color) in zip(cache, colors)
         lines!(ax, xy; color)
     end

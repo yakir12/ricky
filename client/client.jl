@@ -4,12 +4,16 @@ using Base.Threads
 
 const Color = RGB{N0f8}
 
-const camera = (4056, 3040)
+        # w, h, fps = (1332,990,120) # 18
+        # w, h, fps = (2028,1080,50) # 13
+        # w, h, fps = (2028,1520,40) # 10
+        # w, h, fps = (4056,3040,10) # 1
+const camera = (1332, 990)
 const ratio = 8
 const sz = camera .÷ ratio
 const fps = 5
 # const ip = "http://192.168.135.111:8000" # through ethernet
-const ip = "http://192.168.135.165:8000" # through ethernet
+const ip = "http://192.168.15.165:8000" # through ethernet
 const face = findfont("dejavu")
 const pixelsize = 30
 
@@ -18,7 +22,7 @@ bytes2img(b::Vector{UInt8}) = Color.(colorview(Gray, normedview(reshape(b, sz)))
 topoint(p) = ImageDraw.Point(Tuple(round.(Int, p)))
 
 # draw_beetle!(img, tag) = draw!(img, CirclePointRadius(topoint(tag.xy ./ ratio), 1), Color(1, 0, 1))
-draw_beetle!(img, tag) = renderstring!(img, tag.id, face, pixelsize, (round.(Int, reverse(tag.xy) ./ ratio))..., halign=:hcenter, valign=:vcenter, fcolor=Color(1,0,0))
+draw_beetle!(img, id, xy) = renderstring!(img, id, face, pixelsize, (round.(Int, reverse(xy) ./ ratio))..., halign=:hcenter, valign=:vcenter, fcolor=Color(1,0,0))
 
 function set_frame!(img)
     HTTP.open("GET", "$ip/frame") do io
@@ -30,8 +34,10 @@ end
 
 function set_image!(img, state)
     set_frame!(img)
-    for tag in state[].tags
-        draw_beetle!(img[], tag)
+    for (i, xy) in enumerate(state[])
+        if !isempty(xy)
+            draw_beetle!(img[], string(i), last(xy))
+        end
     end
     notify(img)
 end
@@ -57,6 +63,7 @@ function connect_canvas!(c, state, running)
 end
 
 function main()
+
     running = Ref(true)
 
     win = GtkWindow("DancingQueen")

@@ -3,7 +3,8 @@ using DetectBees
 using ImageCore, ImageTransformations
 using Oxygen
 
-sz = Int.((4056, 3040) ./ 8)
+w, h, _ = DetectBees.whfps
+sz = Int.((w, h) ./ 8)
 const buffer = Matrix{N0f8}(undef, sz)
 
 get_Y, get_tags, task = main();
