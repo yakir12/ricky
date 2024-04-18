@@ -4,13 +4,12 @@ using Base.Threads
 
 const Color = RGB{N0f8}
 
-        # w, h, fps = (1332,990,120) # 18
-        # w, h, fps = (2028,1080,50) # 13
-        # w, h, fps = (2028,1520,40) # 10
-        # w, h, fps = (4056,3040,10) # 1
-const camera = (1332, 990)
+# camera = (1332,990) # 18
+# camera = (2028,1080) # 13
+# camera = (2028,1520) # 10
+camera = (4056,3040) # 1
 const ratio = 8
-const sz = camera .÷ ratio
+const sz = round.(Int, camera ./ ratio)
 const fps = 5
 # const ip = "http://192.168.135.111:8000" # through ethernet
 const ip = "http://192.168.15.165:8000" # through ethernet

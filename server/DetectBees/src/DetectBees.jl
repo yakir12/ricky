@@ -10,10 +10,10 @@ export main
 
 const SV = SVector{2, Float64}
 
-const whfps = (1332,990,120) # 18
-# w, h, fps = (2028,1080,50) # 13
-# w, h, fps = (2028,1520,40) # 10
-# w, h, fps = (4056,3040,10) # 1
+# const whfps = (1332,990,120) # 18
+# const whfps = (2028,1080,50) # 13
+# const whfps = (2028,1520,40) # 10
+const whfps = (4056,3040,10) # 1
 
 function get_all_indices()
     out = Dict{Int, Vector{SV}}()
