@@ -6,8 +6,8 @@ const Color = RGB{N0f8}
 
 # camera = (1332,990) # 18
 # camera = (2028,1080) # 13
-# camera = (2028,1520) # 10
-camera = (4056,3040) # 1
+camera = (2028,1520) # 10
+# camera = (4056,3040) # 1
 const ratio = 8
 const sz = round.(Int, camera ./ ratio)
 const fps = 5
