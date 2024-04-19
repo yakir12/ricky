@@ -4,10 +4,13 @@ using Base.Threads
 
 const Color = RGB{N0f8}
 
-# camera = (990,1332,990) # 18
-# camera = (2028,1080) # 13
-# camera = (2028,1520) # 10
-camera = (4056,3040) # 1
+const camera_modes = ((w = 990, h = 1332, fps = 120),
+         (w = 2028, h = 1080, fps = 50),
+         (w = 2028, h = 1520, fps = 40),
+         (w = 4056, h = 3040, fps = 10))
+const mode = camera_modes[2]
+
+camera = (mode.w, mode.h)
 const ratio = 8
 const sz = round.(Int, camera ./ ratio)
 const fps = 5
