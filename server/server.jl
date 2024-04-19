@@ -3,7 +3,7 @@ using DetectBees
 using ImageCore, ImageTransformations
 using Oxygen
 
-w, h, _ = DetectBees.whfps
+w, h, _ = DetectBees.mode
 sz = round.(Int, (w, h) ./ 8)
 const buffer = Matrix{N0f8}(undef, sz)
 
