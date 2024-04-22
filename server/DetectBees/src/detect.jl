@@ -33,10 +33,10 @@ function classify_color(cs)
     μ = normalize_hue(rad2deg(angle(v)))
     σ = 1 - norm(v)
     tagcolor = if σ > 0.04
-        H = map(x -> getfield(x, :h), hsi)
-        I = map(x -> getfield(x, :i), hsi)
-        S = map(x -> getfield(x, :s), hsi)
-        @show H, S, I
+        # H = map(x -> getfield(x, :h), hsi)
+        # I = map(x -> getfield(x, :i), hsi)
+        # S = map(x -> getfield(x, :s), hsi)
+        # @show H, S, I
         black
     else
         vh = reim(v)
