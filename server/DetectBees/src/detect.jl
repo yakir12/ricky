@@ -34,7 +34,8 @@ function classify_color(cs)
     σ = 1 - norm(v)
     tagcolor = if σ > 0.04
         I = map(x -> getfield(x, :i), hsi)
-        @show I
+        S = map(x -> getfield(x, :s), hsi)
+        @show I, S
         black
     else
         vh = reim(v)
