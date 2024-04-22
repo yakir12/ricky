@@ -9,7 +9,7 @@ const camera_modes = ((w = 990, h = 1332, fps = 120),
          (w = 2028, h = 1080, fps = 50),
          (w = 2028, h = 1520, fps = 40),
          (w = 4056, h = 3040, fps = 10))
-const mode = camera_modes[1]
+const mode = camera_modes[2]
 
 function get_state()
     r = HTTP.request("GET", "$ip/bees")
@@ -25,12 +25,13 @@ end
 
 function main()
 
-    colors = repeat([Symbol.(instances(TagColor))...], inner=30)
+    # colors = repeat([Symbol.(instances(TagColor))...], inner=30)
+    texts = repeat([string(i)[1:2] for i in instances(TagColor)], inner=30)
     cache = [Observable(Point2f[]) for _ in 1:120]
     fig = Figure()
     ax = Axis(fig[1,1], aspect=DataAspect(), limits=(0, mode.w, 0, mode.h))
-    for (xy, color) in zip(cache, colors)
-        lines!(ax, xy; color)
+    for (xy, txt) in zip(cache, texts)
+        text!(ax, xy, text="a")#; text=txt)
     end
     running = Ref(true)
     get_state() # flush
