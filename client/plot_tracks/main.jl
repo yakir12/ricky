@@ -26,12 +26,13 @@ end
 function main()
 
     # colors = repeat([Symbol.(instances(TagColor))...], inner=30)
-    texts = repeat([string(i)[1:2] for i in instances(TagColor)], inner=30)
+    texts = repeat([string(i)[1] for i in instances(TagColor)], inner=30)
     cache = [Observable(Point2f[]) for _ in 1:120]
     fig = Figure()
     ax = Axis(fig[1,1], aspect=DataAspect(), limits=(0, mode.w, 0, mode.h))
     for (xy, txt) in zip(cache, texts)
-        text!(ax, xy, text="a")#; text=txt)
+        scatter!(ax, xy, marker=txt)
+        # text!(ax, xy, text="a")#; text=txt)
     end
     running = Ref(true)
     get_state() # flush
