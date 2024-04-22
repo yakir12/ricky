@@ -28,10 +28,13 @@ function get_colors(id, H, itp)
 end
 
 function classify_color(cs)
-    v = mean(cis ∘ deg2rad ∘ hue ∘ HSI, cs)
+    hsi = HSI.(cs)
+    v = mean(cis ∘ deg2rad ∘ hue, hsi)
     μ = normalize_hue(rad2deg(angle(v)))
     σ = 1 - norm(v)
     tagcolor = if σ > 0.04
+        I = mean(x -> getfield(x, :i), hsi)
+        @show I
         black
     else
         vh = reim(v)
