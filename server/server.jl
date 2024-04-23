@@ -11,7 +11,7 @@ get_Y, get_tags, task = main();
 
 frame() = binary(collect(vec(rawview(imresize!(buffer, normedview(get_Y()))))))
 
-@get "/frame" frame
+# @get "/frame" frame
 
 @get "/bees" get_tags
 
