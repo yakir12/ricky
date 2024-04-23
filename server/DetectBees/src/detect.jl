@@ -53,13 +53,14 @@ function classify_tag(id, H, itp)
 end
 
 function detect!(cam::Camera, tags)
-    task = Threads.@spawn cam.detector(collect(cam.Y))
-    itp = (Y = splat(interpolate(rawchannel(cam.Y), BSpline(Linear()))),
-           uv = splat(interpolate(SV.(rawchannel(cam.u), rawchannel(cam.v)), BSpline(Linear()))))
-    _tags = fetch(task)
+    @time "detect" _tags = cam.detector(collect(cam.Y))
+    # task = Threads.@spawn cam.detector(collect(cam.Y))
+    @time "interpolate" itp = (Y = splat(interpolate(rawchannel(cam.Y), BSpline(Linear()))),
+                 uv = splat(interpolate(SV.(rawchannel(cam.u), rawchannel(cam.v)), BSpline(Linear()))))
+    # _tags = fetch(task)
     for tag in _tags
         if good(tag.p)
-            index = classify_tag(tag.id, tag.H, itp)
+            @time "classify" index = classify_tag(tag.id, tag.H, itp)
             push!(tags[index], SV(tag.c))
         end
     end
