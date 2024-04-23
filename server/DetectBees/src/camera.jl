@@ -49,7 +49,7 @@ struct Camera
             yield()
         end
         detector = AprilTagDetector(tag16h5)
-        set_detector!(detector)
+        set_detector!(detector, 1)
         new(buff, Y, u, v, proc, detector)
     end
 end
