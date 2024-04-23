@@ -60,7 +60,7 @@ function detect!(cam::Camera, tags)
     # _tags = fetch(task)
     for tag in _tags
         if good(tag.p)
-            @time "classify" index = classify_tag(tag.id, tag.H, itp)
+            index = classify_tag(tag.id, tag.H, itp)
             push!(tags[index], SV(tag.c))
         end
     end
