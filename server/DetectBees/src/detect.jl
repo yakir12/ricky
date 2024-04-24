@@ -54,21 +54,21 @@ end
 
 function get_candidates(img)
     ratio, σ = (1/100, 1)
-    @time "resize" img2 = imresize(img; ratio)
-    @time "filter" x = imfilter(img2, -Kernel.DoG(σ))
-    @time "tf" tf = x .> 0.5
-    @time "label" labels = label_components(tf)
-    @time "boxes" component_boxes(labels)
+    img2 = imresize(img; ratio)
+    x = imfilter(img2, -Kernel.DoG(σ))
+    tf = x .> 0.5
+    labels = label_components(tf)
+    component_boxes(labels)
 end
 
 function detect!(cam::Camera, tags)
     Y = collect(cam.Y)
     u = collect(cam.u)
     v = collect(cam.v)
-    @time "candidate" boxes = get_candidates(Y)
-    @time "detect" _tags = cam.detector(Y)
+    boxes = get_candidates(Y)
+    _tags = cam.detector(Y)
     # task = Threads.@spawn cam.detector(Y)
-    @time "interpolate" itp = (Y = splat(interpolate(rawchannel(Y), BSpline(Linear()))),
+    itp = (Y = splat(interpolate(rawchannel(Y), BSpline(Linear()))),
                  uv = splat(interpolate(SV.(rawchannel(u), rawchannel(v)), BSpline(Linear()))))
     # _tags = fetch(task)
     for tag in _tags
