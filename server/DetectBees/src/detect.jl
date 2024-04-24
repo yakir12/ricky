@@ -62,11 +62,14 @@ function get_candidates(img)
 end
 
 function detect!(cam::Camera, tags)
-    @time "candidate" boxes = get_candidates(collect(cam.Y))
-    @time "detect" _tags = cam.detector(collect(cam.Y))
-    # task = Threads.@spawn cam.detector(collect(cam.Y))
-    @time "interpolate" itp = (Y = splat(interpolate(rawchannel(cam.Y), BSpline(Linear()))),
-                 uv = splat(interpolate(SV.(rawchannel(cam.u), rawchannel(cam.v)), BSpline(Linear()))))
+    Y = collect(cam.Y)
+    u = collect(cam.u)
+    v = collect(cam.v)
+    @time "candidate" boxes = get_candidates(Y)
+    @time "detect" _tags = cam.detector(Y)
+    # task = Threads.@spawn cam.detector(Y)
+    @time "interpolate" itp = (Y = splat(interpolate(rawchannel(Y), BSpline(Linear()))),
+                 uv = splat(interpolate(SV.(rawchannel(u), rawchannel(v)), BSpline(Linear()))))
     # _tags = fetch(task)
     for tag in _tags
         if good(tag.p)
