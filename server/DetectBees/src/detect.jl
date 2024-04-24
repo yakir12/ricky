@@ -54,7 +54,7 @@ end
 
 function get_candidates(img)
     ratio, σ = (100, 1)
-    img2 = imresize(img; ratio)
+    img2 = imresize(img; 1/ratio)
     x = imfilter(img2, -Kernel.DoG(σ))
     tf = x .> 0.5
     labels = label_components(tf)
