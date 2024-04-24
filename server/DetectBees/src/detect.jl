@@ -53,8 +53,8 @@ function classify_tag(id, H, itp)
 end
 
 function get_candidates(img)
-    ratio, σ = (100, 1)
-    img2 = imresize(img; 1/ratio)
+    ratio, σ = (1/100, 1)
+    img2 = imresize(img; ratio)
     x = imfilter(img2, -Kernel.DoG(σ))
     tf = x .> 0.5
     labels = label_components(tf)
