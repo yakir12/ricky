@@ -44,7 +44,7 @@ end
 
 cam = Camera(camera_modes[1])
 
-frame() = collect(cam.Y)#(Y = cam.Y, u = cam.u, v = cam.v)
+frame() = binary(collect(vec(cam.Y)))#(Y = cam.Y, u = cam.u, v = cam.v)
 
 @get "/frame" frame
 
