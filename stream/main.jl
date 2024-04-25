@@ -11,15 +11,15 @@ function get_buffer_img(w, h)
     buff = Vector{UInt8}(undef, nb)
     ystart = 1
     yend = w2*h
-    Y = view(reshape(view(buff, ystart:yend), w2, h), 1:w2, h:-1:1)
+    Y = view(reshape(view(buff, ystart:yend), w2, h), 1:w, h:-1:1)
     w4 = Int(w2/2)
     h4 = Int(h/2)
     ustart = yend + 1
     uend = ustart - 1 + w4*h4
-    u = view(reshape(view(buff, ustart:uend), w4, h4), 1:w4, h4:-1:1)
+    u = view(reshape(view(buff, ustart:uend), w4, h4), 1:Int(w/2), h4:-1:1)
     vstart = uend + 1
     vend = vstart - 1 + w4*h4
-    v = view(reshape(view(buff, vstart:vend), w4, h4), 1:w4, h4:-1:1)
+    v = view(reshape(view(buff, vstart:vend), w4, h4), 1:Int(w/2), h4:-1:1)
     return buff, Y, u, v
 end
 

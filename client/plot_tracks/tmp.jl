@@ -28,9 +28,59 @@ violin(vcat(grp...), vcat(hsis...))
 # 4
 detect: 0.9
 interpolate: 0.2
+# 3
+detect: 0.16
+interpolate: 0.04
 # 2
-detect:0.1
+detect: 0.1
 interpolate: 0.03
 # 1
 detect: 0.08
 interpolate: 0.02
+
+resize: 0.000050 seconds (1 allocation: 2.750 KiB)
+filter: 0.000378 seconds (70 allocations: 76.109 KiB)
+tf:     0.000013 seconds (3 allocations: 4.344 KiB)
+label:  0.000052 seconds (42 allocations: 5.625 KiB)
+boxes:  0.000167 seconds (1.40 k allocations: 44.906 KiB)
+candie: 0.000983 seconds (1.62 k allocations: 141.938 KiB)
+detect: 0.179112 seconds (1.42 k allocations: 3.008 MiB)
+interpolate: 0.035360 seconds (172 allocations: 47.503 MiB, 4.36% gc time)
+resize: 0.000056 seconds (1 allocation: 2.750 KiB)
+filter: 0.000473 seconds (70 allocations: 76.109 KiB)
+tf: 0.000016 seconds (3 allocations: 4.344 KiB)
+label: 0.000082 seconds (42 allocations: 5.625 KiB)
+boxes: 0.000230 seconds (1.40 k allocations: 44.797 KiB)
+candidate: 0.001224 seconds (1.62 k allocations: 142.125 KiB)
+detect: 0.178150 seconds (1.77 k allocations: 3.031 MiB)
+interpolate: 0.019570 seconds (64 allocations: 47.501 MiB, 10.13% gc time)
+resize: 0.000064 seconds (1 allocation: 2.750 KiB)
+filter: 0.000414 seconds (70 allocations: 76.109 KiB)
+tf: 0.000013 seconds (3 allocations: 4.344 KiB)
+label: 0.000056 seconds (42 allocations: 5.625 KiB)
+boxes: 0.000172 seconds (1.41 k allocations: 45.109 KiB)
+candidate: 0.001026 seconds (1.62 k allocations: 142.141 KiB)
+detect: 0.173546 seconds (1.51 k allocations: 3.016 MiB)
+interpolate: 0.008536 seconds (6 allocations: 47.500 MiB)
+resize: 0.000066 seconds (1 allocation: 2.750 KiB)
+filter: 0.000436 seconds (70 allocations: 76.109 KiB)
+tf: 0.000015 seconds (3 allocations: 4.344 KiB)
+label: 0.000057 seconds (42 allocations: 5.609 KiB)
+boxes: 0.000175 seconds (1.40 k allocations: 44.797 KiB)
+candidate: 0.001099 seconds (1.62 k allocations: 141.812 KiB)
+detect: 0.169217 seconds (1.57 k allocations: 3.021 MiB)
+interpolate: 0.010704 seconds (6 allocations: 47.500 MiB, 15.93% gc time)
+resize: 0.000043 seconds (1 allocation: 2.750 KiB)
+filter: 0.000431 seconds (70 allocations: 76.109 KiB)
+tf: 0.000013 seconds (3 allocations: 4.344 KiB)
+label: 0.000059 seconds (42 allocations: 5.625 KiB)
+boxes: 0.000180 seconds (1.40 k allocations: 44.906 KiB)
+candidate: 0.001007 seconds (1.62 k allocations: 141.938 KiB)
+detect: 0.179951 seconds (1.42 k allocations: 3.008 MiB)
+interpolate: 0.012918 seconds (6 allocations: 47.500 MiB, 15.96% gc time)
+resize: 0.000057 seconds (1 allocation: 2.750 KiB)
+filter: 0.000423 seconds (70 allocations: 76.109 KiB)
+tf: 0.000013 seconds (3 allocations: 4.344 KiB)
+label: 0.000051 seconds (42 allocations: 5.594 KiB)
+boxes: 0.000167 seconds (1.40 k allocations: 44.422 KiB)
+candidate: 0.001071 seconds (1.61 k allocations: 141.422 KiB)
