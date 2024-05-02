@@ -1,3 +1,20 @@
+struct Detector
+    detectors::Channel{AprilTagDetector}
+    function Detector(ndetectors::Int)
+        detectors = Channel{AprilTagDetector}(ndetectors)
+        foreach(1:ndetectors) do _
+            put!(detectors, AprilTagDetector(tag16h5)) 
+        end
+        new(detectors)
+    end
+end
+function (d::Detector)(img)
+    one_detector = take!(d.detectors)
+    tags = one_detector(img)
+    put!(d.detectors, one_detector)
+    return tags
+end
+
 function good(p)
     # TODO: determine actual tag size and area, filter on that as well
     for i in 1:4
@@ -52,31 +69,15 @@ function classify_tag(id, H, itp)
     return idcol2index(id, color)
 end
 
-function get_candidates(img)
-    ratio, σ = (1/100, 1)
-    img2 = imresize(img; ratio)
-    x = imfilter(img2, -Kernel.DoG(σ))
-    tf = x .> 0.5
-    labels = label_components(tf)
-    component_boxes(labels)
-end
+# tag2points(tag::AprilTag, c₀::SV) = SVector{4, SV}(c₀ + SV(p) for p in tag.p)
 
-function detect!(cam::Camera, tags)
-    Y = collect(cam.Y)
-    u = collect(cam.u)
-    v = collect(cam.v)
-    boxes = get_candidates(Y)
-    _tags = cam.detector(Y)
-    # task = Threads.@spawn cam.detector(Y)
-    itp = (Y = splat(interpolate(rawchannel(Y), BSpline(Linear()))),
-                 uv = splat(interpolate(SV.(rawchannel(u), rawchannel(v)), BSpline(Linear()))))
-    # _tags = fetch(task)
-    for tag in _tags
+detect!(tags, detector, img; ntasks=Threads.nthreads()) = tmapreduce(vcat, TileIterator(axes(img), (110, 111)); ntasks, scheduler=:greedy) do i
+    tags = detector(img[i...])
+    c₀ = SV(reverse(minimum.(i)))
+    for tag in tags 
         if good(tag.p)
-            index = classify_tag(tag.id, tag.H, itp)
-            push!(tags[index], SV(tag.c))
+            push!(tags[tag.id], SV(tag.c) + c₀)
         end
     end
 end
-
 

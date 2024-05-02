@@ -2,8 +2,9 @@ module DetectBees
 
 using Statistics, LinearAlgebra, Dates
 using ColorTypes, StaticArrays, Interpolations, CoordinateTransformations, DataStructures
-using ImageCore, ImageTransformations, ImageFiltering, ImageMorphology
+using ImageCore, ImageTransformations
 import AprilTags: AprilTagDetector, getAprilTagImage, tag16h5
+using OhMyThreads, TiledIteration
 import AngleBetweenVectors:angle
 
 export main
@@ -72,10 +73,11 @@ end
 function main()
     # fps = FPS(10)
     cam = Camera()
+    detector = Detector(2Threads.nthreads())
     tags = [CircularBuffer{SV}(1000) for _ in 1:30length(instances(TagColor))]
-    task = Threads.@spawn while true
-        # snap!(cam)
-        detect!(cam, tags)
+    task = Threads.@spawn while isopen(cam)
+        snap!(cam)
+        detect!(tags, detector, cam.Y)
         # tick!(fps)
     end
     return (
