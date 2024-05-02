@@ -10,9 +10,14 @@ struct Detector
 end
 function (d::Detector)(img)
     one_detector = take!(d.detectors)
-    tags = one_detector(img)
-    put!(d.detectors, one_detector)
-    return tags
+    try
+        return one_detector(img)
+    catch ex
+        @warn ex
+        return AprilTag[]
+    finally
+        put!(d.detectors, one_detector)
+    end
 end
 
 function good(p)
