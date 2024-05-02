@@ -72,9 +72,9 @@ end
 # tag2points(tag::AprilTag, c₀::SV) = SVector{4, SV}(c₀ + SV(p) for p in tag.p)
 
 detect!(tags, detector, img; ntasks=Threads.nthreads()) = tmapreduce(vcat, TileIterator(axes(img), (110, 111)); ntasks, scheduler=:greedy) do i
-    tags = detector(img[i...])
+    _tags = detector(img[i...])
     c₀ = SV(reverse(minimum.(i)))
-    for tag in tags 
+    for tag in _tags 
         if good(tag.p)
             push!(tags[tag.id], SV(tag.c) + c₀)
         end
