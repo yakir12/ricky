@@ -2,7 +2,6 @@ const camera_modes = ((w = 990, h = 1332, fps = 120),
          (w = 2028, h = 1080, fps = 50),
          (w = 2028, h = 1520, fps = 40),
          (w = 4056, h = 3040, fps = 10))
-const mode = camera_modes[3]
 
 function get_buffer_img(w, h)
     w2 = 64ceil(Int, w/64) # dimension adjustments to hardware restrictions
@@ -28,7 +27,7 @@ struct Camera
     u::SubArray{UInt8, 2, Base.ReshapedArray{UInt8, 2, SubArray{UInt8, 1, Vector{UInt8}, Tuple{UnitRange{Int64}}, true}, Tuple{}}, Tuple{UnitRange{Int64}, StepRange{Int64, Int64}}, false}
     v::SubArray{UInt8, 2, Base.ReshapedArray{UInt8, 2, SubArray{UInt8, 1, Vector{UInt8}, Tuple{UnitRange{Int64}}, true}, Tuple{}}, Tuple{UnitRange{Int64}, StepRange{Int64, Int64}}, false}
     proc::Base.Process
-    function Camera()
+    function Camera(mode)
         w, h, fps = mode
         proc = open(`rpicam-vid --denoise cdn_off -n --framerate $fps --width $w --height $h --timeout 0 --codec yuv420 -o -`)
         buff, Y, u, v = get_buffer_img(w, h)

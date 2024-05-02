@@ -45,7 +45,7 @@ end
 mutable struct FPS{N}
     i::Int
     times::MVector{N, UInt64}
-    FPS{N}() where {N} = (@show N; new(0, MVector{N, UInt64}(1:N)))
+    FPS{N}() where {N} = new(0, MVector{N, UInt64}(1:N))
 end
 FPS(N::Int) = FPS{N}()
 
@@ -58,27 +58,15 @@ function tick!(fps::FPS{N}) where N
     end
 end
 
-# const benchmark = Ref(now())
-# function report_bm()
-#     t = now()
-#     Δ = t - benchmark[]
-#     fps = 1000 ÷ max(1, Dates.value(Δ))
-#     benchmark[] = t
-#     if fps < 1000
-#         println(fps)
-#     end
-# end
-
-
 function main()
-    # fps = FPS(10)
-    cam = Camera()
+    fps = FPS(10)
+    cam = Camera(camera_modes[1])
     detector = Detector(2Threads.nthreads())
-    tags = [CircularBuffer{SV}(1000) for _ in 1:30length(instances(TagColor))]
+    tags = [CircularBuffer{SV}(10_000) for _ in 1:30length(instances(TagColor))]
     task = Threads.@spawn while isopen(cam)
         snap!(cam)
         detect!(tags, detector, cam.Y)
-        # tick!(fps)
+        tick!(fps)
     end
     return (
             () -> collect(cam.Y),

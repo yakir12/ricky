@@ -3,7 +3,7 @@ using Dates, HTTP, JSON3, TOML, DataStructures
 using Base.Threads
 
 @enum TagColor black=90 red=0 green=120 blue=240
-const ip = "http://192.168.15.165:8000" # through ethernet
+const ip = "http://192.168.146.165:8000" # through ethernet
 
 const camera_modes = ((w = 990, h = 1332, fps = 120),
          (w = 2028, h = 1080, fps = 50),
