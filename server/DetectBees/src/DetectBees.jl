@@ -58,9 +58,9 @@ function tick!(fps::FPS{N}) where N
     end
 end
 
-function main()
+function main(mode)
     fps = FPS(10)
-    cam = Camera(camera_modes[1])
+    cam = Camera(camera_modes[mode])
     detector = Detector(2Threads.nthreads())
     tags = [CircularBuffer{SV}(10_000) for _ in 1:30length(instances(TagColor))]
     task = Threads.@spawn while isopen(cam)
