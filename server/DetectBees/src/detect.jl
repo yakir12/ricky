@@ -1,3 +1,4 @@
+# TODO: 
 struct Detector
     detectors::Channel{AprilTagDetector}
     function Detector(ndetectors::Int)
