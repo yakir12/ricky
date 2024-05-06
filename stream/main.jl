@@ -1,3 +1,4 @@
+using Statistics
 using Oxygen
 using ImageCore, StaticArrays, ImageTransformations, JpegTurbo
 
