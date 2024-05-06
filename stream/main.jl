@@ -1,5 +1,5 @@
 using Oxygen
-using ImageCore, StaticArrays, ImageTransformations
+using ImageCore, StaticArrays, ImageTransformations, JpegTurbo
 
 mutable struct FPS{N}
     i::Int
