@@ -2,6 +2,40 @@ using Statistics
 using Oxygen
 using ImageCore, StaticArrays, ImageTransformations, JpegTurbo
 
+struct Detector
+    detectors::Channel{AprilTagDetector}
+    function Detector(ndetectors::Int)
+        detectors = Channel{AprilTagDetector}(ndetectors)
+        foreach(1:ndetectors) do _
+            put!(detectors, AprilTagDetector()) 
+        end
+        new(detectors)
+    end
+end
+
+function (d::Detector)(img)
+    one_detector = take!(d.detectors)
+    try
+        return one_detector(img)
+    catch ex
+        @warn ex
+        return AprilTag[]
+    finally
+        put!(d.detectors, one_detector)
+    end
+end
+
+detect(detector, img; ntasks=Threads.nthreads()) = tforeach(TileIterator(axes(img), (110, 111)); ntasks, scheduler=:greedy) do i
+    _tags = detector(img[i...])
+    c₀ = SV(reverse(minimum.(i)))
+    for tag in _tags 
+        # if good(tag.p)
+            id = tag.id
+            c = SV(tag.c) + c₀
+        # end
+    end
+end
+
 mutable struct FPS{N}
     i::Int
     times::MVector{N, UInt64}
@@ -30,9 +64,11 @@ sz = round.(Int, (camera_mode.w, camera_mode.h) ./ 8)
 const smallerY = Matrix{N0f8}(undef, sz)
 const msg = Ref(frame!(smallerY, cam))
 
-fps = FPS(50)
+const detector = Detector(2Threads.nthreads())
+const fps = FPS(50)
 task = Threads.@spawn while isopen(cam)
     snap!(cam)
+    detec(detector, cam.Y)
     msg[] = frame!(smallerY, cam)
     tick!(fps)
     yield()

@@ -81,9 +81,9 @@ detect!(tags, detector, img; ntasks=Threads.nthreads()) = tmapreduce(vcat, TileI
     _tags = detector(img[i...])
     c₀ = SV(reverse(minimum.(i)))
     for tag in _tags 
-        if good(tag.p)
+        # if good(tag.p)
             push!(tags[tag.id + 1], SV(tag.c) + c₀)
-        end
+        # end
     end
 end
 
