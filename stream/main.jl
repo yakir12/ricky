@@ -73,4 +73,4 @@ loadImage();
     return ui
 end
 
-serve(access_log=nothing, host="0.0.0.0", port=8000)
+serve(access_log=nothing, host="0.0.0.0", port=8000, async=true)
