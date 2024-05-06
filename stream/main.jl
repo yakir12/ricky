@@ -30,11 +30,11 @@ sz = round.(Int, (camera_mode.w, camera_mode.h) ./ 8)
 const smallerY = Matrix{N0f8}(undef, sz)
 const msg = Ref(frame!(smallerY, cam))
 
-fps = FPS(10)
+# fps = FPS(10)
 task = Threads.@spawn while isopen(cam)
     snap!(cam)
     msg[] = frame!(smallerY, cam)
-    tick!(fps)
+    # tick!(fps)
     yield()
 end
 
