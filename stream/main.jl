@@ -1,5 +1,6 @@
 using Statistics
-using Oxygen
+using Oxygen, AprilTags
+# import AprilTags.AprilTagDetector
 using ImageCore, StaticArrays, ImageTransformations, JpegTurbo
 
 struct Detector
