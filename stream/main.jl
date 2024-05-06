@@ -20,7 +20,7 @@ end
 
 include(joinpath(@__DIR__(), "../server/DetectBees/src/camera.jl"))
 
-frame!(smallerY, cam) = String(jpeg_encode(rawview(imresize!(smallerY, normedview(cam.Y))); transpose=true))
+frame!(smallerY, cam) = String(jpeg_encode(colorview(Gray, imresize!(smallerY, normedview(cam.Y))); transpose=true))
 
 mode = 1
 camera_mode = camera_modes[mode]
