@@ -1,5 +1,5 @@
 using Statistics
-using OhMyThreads, AprilTags, StaticArrays, 
+using OhMyThreads, AprilTags, StaticArrays
 
 const SV = SVector{2, Float64}
 
