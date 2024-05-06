@@ -37,7 +37,7 @@ task = Threads.@spawn while isopen(cam)
     yield()
 end
 
-@get "/frame" do
+@get "/frame" function()
     msg[]
 end
 
