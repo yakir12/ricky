@@ -65,7 +65,7 @@ const tags = [CircularBuffer{SV}(1_000) for _ in 1:587]
 task = Threads.@spawn while isopen(cam)
     snap!(cam)
     detect!(tags, detector, cam.Y)
-    tick!(fps)
+    # tick!(fps)
     yield()
 end
 
