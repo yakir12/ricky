@@ -2,6 +2,7 @@ using Statistics
 using OhMyThreads, AprilTags, StaticArrays, TiledIteration, DataStructures
 
 const SV = SVector{2, Float64}
+const SVI = SVector{2, Int}
 
 
 struct Detector
@@ -27,11 +28,14 @@ function (d::Detector)(img)
     end
 end
 
+const ntags = 200
+
 detect!(tags, detector, img; ntasks=Threads.nthreads()) = tforeach(TileIterator(axes(img), (110, 111)); ntasks, scheduler=:greedy) do i
     _tags = detector(img[i...])
     c₀ = SV(reverse(minimum.(i)))
+    fill!(tags, missing)
     for tag in _tags 
-        push!(tags[tag.id + 1], SV(tag.c) + c₀)
+        tags[tag.id + 1] = round.(Int, SV(tag.c) + c₀)
     end
 end
 
@@ -61,7 +65,8 @@ const cam = Camera(camera_mode)
 
 const detector = Detector(2Threads.nthreads())
 const fps = FPS(50)
-const tags = [CircularBuffer{SV}(1_000) for _ in 1:587]
+const tags = Union{Missing, SVI}[missing for _ in 1:587]
+tags = Vector{Union{Missing, SVI}}(undef, ntags)
 task = Threads.@spawn while isopen(cam)
     snap!(cam)
     detect!(tags, detector, cam.Y)
@@ -72,14 +77,15 @@ end
 using Oxygen, ImageCore, ImageTransformations, JpegTurbo, ImageDraw
 sz = round.(Int, (camera_mode.w, camera_mode.h) ./ 8)
 const smallerY = Matrix{RGB{N0f8}}(undef, sz)
+mydraw!(_, ::Missing) = nothing
+function mydraw!(img, tag::SVI)
+    x, y = tag
+    draw!(img, CirclePointRadius(x, y, 20), colorant"red")
+    return nothing
+end
 @get "/frame" function()
     img = map(RGB ∘ Gray, normedview(cam.Y))
-    for tag in tags
-        if !isempty(tag)
-            x, y = last(tag)
-            draw!(img, CirclePointRadius(round(Int, x), round(Int, y), 5), colorant"red")
-        end
-    end
+    mydraw!.(img, tags)
     imresize!(smallerY, img) 
     String(jpeg_encode(smallerY; transpose=true))
 end
