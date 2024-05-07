@@ -77,7 +77,7 @@ task = Threads.@spawn while isopen(cam)
 end
 
 using Oxygen, ImageCore, ImageTransformations, JpegTurbo, ImageDraw
-sz = round.(Int, (camera_mode.w, camera_mode.h) ./ 8)
+sz = round.(Int, (camera_mode.w, camera_mode.h) ./ 1)
 const smallerY = Matrix{RGB{N0f8}}(undef, sz)
 mydraw!(_, ::Missing) = nothing
 function mydraw!(img, tag::SVI)
