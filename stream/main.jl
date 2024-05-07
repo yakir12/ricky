@@ -1,10 +1,8 @@
 using Statistics
-using OhMyThreads, AprilTags, StaticArrays, TiledIteration
+using OhMyThreads, AprilTags, StaticArrays, TiledIteration, DataStructures
 
 const SV = SVector{2, Float64}
 
-# using Oxygen
-# using ImageCore, ImageTransformations, JpegTurbo
 
 struct Detector
     detectors::Channel{AprilTagDetector}
@@ -29,14 +27,11 @@ function (d::Detector)(img)
     end
 end
 
-detect(detector, img; ntasks=Threads.nthreads()) = tforeach(TileIterator(axes(img), (110, 111)); ntasks, scheduler=:greedy) do i
+detect!(tags, detector, img; ntasks=Threads.nthreads()) = tforeach(TileIterator(axes(img), (110, 111)); ntasks, scheduler=:greedy) do i
     _tags = detector(img[i...])
     c₀ = SV(reverse(minimum.(i)))
     for tag in _tags 
-        # if good(tag.p)
-            id = tag.id
-            c = SV(tag.c) + c₀
-        # end
+        push!(tags[tag.id + 1], SV(tag.c) + c₀)
     end
 end
 
@@ -58,26 +53,27 @@ end
 
 include(joinpath(@__DIR__(), "../server/DetectBees/src/camera.jl"))
 
-# frame!(smallerY, cam) = String(jpeg_encode(colorview(Gray, imresize!(smallerY, normedview(cam.Y))); transpose=true))
 
 mode = 1
 camera_mode = camera_modes[mode]
 
 const cam = Camera(camera_mode)
-# sz = round.(Int, (camera_mode.w, camera_mode.h) ./ 8)
-# const smallerY = Matrix{N0f8}(undef, sz)
-# const msg = Ref(frame!(smallerY, cam))
 
 const detector = Detector(2Threads.nthreads())
 const fps = FPS(50)
+const tags = [CircularBuffer{SV}(1_000) for _ in 1:587]
 task = Threads.@spawn while isopen(cam)
     snap!(cam)
-    detect(detector, cam.Y)
-    # msg[] = frame!(smallerY, cam)
+    detect!(tags, detector, cam.Y)
     tick!(fps)
     yield()
 end
 
+# using Oxygen, ImageCore, ImageTransformations, JpegTurbo
+# frame!(smallerY, cam) = String(jpeg_encode(colorview(Gray, imresize!(smallerY, normedview(cam.Y))); transpose=true))
+# sz = round.(Int, (camera_mode.w, camera_mode.h) ./ 8)
+# const smallerY = Matrix{N0f8}(undef, sz)
+# const msg = Ref(frame!(smallerY, cam))
 # @get "/frame" function()
 #     msg[]
 # end
