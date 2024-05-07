@@ -69,44 +69,48 @@ task = Threads.@spawn while isopen(cam)
     yield()
 end
 
-# using Oxygen, ImageCore, ImageTransformations, JpegTurbo
-# frame!(smallerY, cam) = String(jpeg_encode(colorview(Gray, imresize!(smallerY, normedview(cam.Y))); transpose=true))
-# sz = round.(Int, (camera_mode.w, camera_mode.h) ./ 8)
-# const smallerY = Matrix{N0f8}(undef, sz)
-# const msg = Ref(frame!(smallerY, cam))
-# @get "/frame" function()
-#     msg[]
-# end
-#
-# const ui = """
-# <!DOCTYPE html><html>
-# <head>
-# <meta charset="utf-8" />
-# <title>Oxygen App</title>
-# </head>
-# <body>
-# <div>
-# <img id="frame">
-# </div>
-# <script>
-# frame = document.querySelector("#frame");
-#
-# async function loadImage() {
-# res = await fetch("/frame");
-# imgData = await res.blob();
-# frame.src = URL.createObjectURL(imgData);
-# }
-#
-# setInterval(() => {
-# loadImage();
-# }, 100);
-# </script>
-# </body>
-# </html>
-# """
-#
-# @get "/" function()
-#     return ui
-# end
-#
-# serve(access_log=nothing, host="0.0.0.0", port=8000, async=true)
+using Oxygen, ImageCore, ImageTransformations, JpegTurbo
+sz = round.(Int, (camera_mode.w, camera_mode.h) ./ 8)
+const smallerY = Matrix{RGB{N0f8}}(undef, sz)
+@get "/frame" function()
+    img = map(RGB ∘ Gray, normedview(cam.Y))
+    for tag in tags
+        x, y = last(tag)
+        draw!(img, CirclePointRadius(x, y, 5))
+    end
+    imresize!(smallerY, img) 
+    String(jpeg_encode(smallerY; transpose=true))
+end
+
+const ui = """
+<!DOCTYPE html><html>
+<head>
+<meta charset="utf-8" />
+<title>Oxygen App</title>
+</head>
+<body>
+<div>
+<img id="frame">
+</div>
+<script>
+frame = document.querySelector("#frame");
+
+async function loadImage() {
+res = await fetch("/frame");
+imgData = await res.blob();
+frame.src = URL.createObjectURL(imgData);
+}
+
+setInterval(() => {
+loadImage();
+}, 100);
+</script>
+</body>
+</html>
+"""
+
+@get "/" function()
+    return ui
+end
+
+serve(access_log=nothing, host="0.0.0.0", port=8000, async=true)

@@ -2,6 +2,8 @@
 using CairoMakie, AprilTags, GeometryBasics
 using Colors, ColorTypes, FixedPointNumbers
 using CoordinateTransformations, Rotations
+using Distributions, LinearAlgebra
+
 
 # only works cause the apriltag family is 16h5, so 30 tags, s 5 times 6 rows and columns
 
@@ -43,11 +45,12 @@ ncolors = length(colors)
 
 fig_size = (600, 800)
 fig = Figure(size = fig_size, figure_padding = 0);
-ax = Axis(fig[1, 1], aspect = DataAspect(), limits=(0, fig_size[1], 0, fig_size[2]))
+ax = Axis(fig[1, 1], aspect = DataAspect(), limits=(0, fig_size[1], 0, fig_size[2]), backgroundcolor = :gray80)
+d = MixtureModel([MvNormal([fig_size...] ./ 1.8, 6max(fig_size...)*I), MvNormal([fig_size...] ./ 3, 2min(fig_size...)*I)])
 for _ in 1:100
     id = rand(ids)
     color = rand(colors)
-    offset = Point2f(rand(2) .* fig_size)
+    offset = Point2f(rand(d))
     θ = rand()*2π
     plot1tag!(ax, offset, id, color, θ)
 end
