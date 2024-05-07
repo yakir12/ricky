@@ -85,7 +85,7 @@ function mydraw!(img, tag::SVI)
 end
 @get "/frame" function()
     img = map(RGB ∘ Gray, normedview(cam.Y))
-    mydraw!.(img, tags)
+    foreach(tag -> mydraw!(img, tag), tags)
     imresize!(smallerY, img) 
     String(jpeg_encode(smallerY; transpose=true))
 end
