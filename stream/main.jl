@@ -35,7 +35,9 @@ detect!(tags, detector, img; ntasks=Threads.nthreads()) = tforeach(TileIterator(
     c₀ = SV(reverse(minimum.(i)))
     fill!(tags, missing)
     for tag in _tags 
-        tags[tag.id + 1] = round.(Int, SV(tag.c) + c₀)
+        if tag.id < ntags
+            tags[tag.id + 1] = round.(Int, SV(tag.c) + c₀)
+        end
     end
 end
 
@@ -85,7 +87,7 @@ function mydraw!(img, tag::SVI)
 end
 @get "/frame" function()
     img = map(RGB ∘ Gray, normedview(cam.Y))
-    foreach(tag -> mydraw!(img, tag), tags)
+    foreach(tag -> mydraw!(img, tag), deepcopy(tags))
     imresize!(smallerY, img) 
     String(jpeg_encode(smallerY; transpose=true))
 end
