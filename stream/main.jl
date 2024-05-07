@@ -67,8 +67,7 @@ const cam = Camera(camera_mode)
 
 const detector = Detector(2Threads.nthreads())
 const fps = FPS(50)
-const tags = Union{Missing, SVI}[missing for _ in 1:587]
-tags = Vector{Union{Missing, SVI}}(undef, ntags)
+const tags = Vector{Union{Missing, SVI}}(undef, ntags)
 task = Threads.@spawn while isopen(cam)
     snap!(cam)
     detect!(tags, detector, cam.Y)
