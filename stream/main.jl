@@ -75,8 +75,10 @@ const smallerY = Matrix{RGB{N0f8}}(undef, sz)
 @get "/frame" function()
     img = map(RGB ∘ Gray, normedview(cam.Y))
     for tag in tags
-        x, y = last(tag)
-        draw!(img, CirclePointRadius(x, y, 5))
+        if !isempty(tag)
+            x, y = last(tag)
+            draw!(img, CirclePointRadius(x, y, 5))
+        end
     end
     imresize!(smallerY, img) 
     String(jpeg_encode(smallerY; transpose=true))
