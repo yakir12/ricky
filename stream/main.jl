@@ -77,7 +77,7 @@ const smallerY = Matrix{RGB{N0f8}}(undef, sz)
     for tag in tags
         if !isempty(tag)
             x, y = last(tag)
-            draw!(img, CirclePointRadius(x, y, 5))
+            draw!(img, CirclePointRadius(round(Int, x), round(Int, y), 5), colorant"red")
         end
     end
     imresize!(smallerY, img) 
