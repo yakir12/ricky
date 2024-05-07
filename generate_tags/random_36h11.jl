@@ -30,10 +30,9 @@ function plot1tag!(ax, offset, id, color, θ)
 end
 
 const mm2pt = 72/25.4 # multiply mm to get points
-# const a4 = (210, 297)
 # const a4 = (595, 842)
 
-tag_width = 4
+tag_width = 8
 
 tag_bytes = 10 # due to the family
 pt_per_unit = tag_width*mm2pt/tag_bytes
@@ -43,7 +42,8 @@ ids = 0:200
 colors = [RGB(0,0,0)]
 ncolors = length(colors)
 
-fig_size = (600, 800)
+const a4 = (210, 297)
+fig_size = floor.(Int, a4 .* tag_bytes ./ tag_width)
 fig = Figure(size = fig_size, figure_padding = 0);
 ax = Axis(fig[1, 1], aspect = DataAspect(), limits=(0, fig_size[1], 0, fig_size[2]), backgroundcolor = :gray80)
 d = MixtureModel([MvNormal([fig_size...] ./ 1.8, 6max(fig_size...)*I), MvNormal([fig_size...] ./ 3, 2min(fig_size...)*I)])
@@ -51,7 +51,7 @@ for _ in 1:100
     id = rand(ids)
     color = rand(colors)
     offset = Point2f(rand(d))
-    θ = rand()*2π
+    θ = 0#rand()*2π
     plot1tag!(ax, offset, id, color, θ)
 end
 hidedecorations!(ax)
