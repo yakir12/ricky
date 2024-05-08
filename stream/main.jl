@@ -1,58 +1,51 @@
 using Statistics
-using OhMyThreads, AprilTags, StaticArrays, TiledIteration, DataStructures
+using OhMyThreads, AprilTags, StaticArrays, TiledIteration, DataStructures, ImageMorphology
 
 const SV = SVector{2, Float64}
 const SVI = SVector{2, Int}
 
 struct Detector
-    detectors::Channel{AprilTagDetector}
-    function Detector(ndetectors::Int)
-        detectors = Channel{AprilTagDetector}(ndetectors)
+    pool::Channel{AprilTagDetector}
+    tags::Vector{CircularBuffer{SVI}}
+    tile_c_i
+    candidates::BitMatrix
+    ntasks::Int
+    function TiledImage(sz, ndetectors, ntags, npoints, ntasks)
+        pool = Channel{AprilTagDetector}(ndetectors)
+        tags =  [CircularBuffer{SVI}(npoints) for _ in 1:ntags]
         foreach(1:ndetectors) do _
-            put!(detectors, AprilTagDetector()) 
+            put!(pool, AprilTagDetector()) 
         end
-        new(detectors)
+        tiles = TileIterator(Base.OneTo.(sz), (507, 304))
+        c₀ = [SV(reverse(minimum.(i))) for i in tiles]
+        tile_c_i = zip(tiles, c₀, eachindex(tiles))
+        ntiles = size(tiles)
+        candidates = trues(ntiles)
+        return new(pool, tags, tile_c_i, candidates)
     end
 end
 
 function (d::Detector)(img)
-    one_detector = take!(d.detectors)
-    tags = one_detector(img)
-    put!(d.detectors, one_detector)
-    return tags
-end
-#     try
-#         return one_detector(img)
-#     catch ex
-#         # @warn ex
-#         return AprilTag[]
-#     finally
-#         put!(d.detectors, one_detector)
-#     end
-# end
-
-const ntags = 200
-
-# function detect!(tags, detector, img; ntasks=Threads.nthreads()) 
-#     fill!(tags, missing)
-#     _tags = detector(collect(img))
-#     for tag in _tags 
-#         if tag.id < ntags
-#             tags[tag.id + 1] = round.(Int, SV(tag.c))
-#         end
-#     end
-# end
-function detect!(tags, detector, img; ntasks=Threads.nthreads()) 
-    tforeach(TileIterator(axes(img), (507, 304)); ntasks, scheduler=:greedy) do i
-    # tforeach(TileIterator(axes(img), (110, 111)); ntasks, scheduler=:greedy) do i
-        _tags = detector(img[i...])
-        c₀ = SV(reverse(minimum.(i)))
+    todo = (tile_c_i for (tile_c_i, good) in zip(d.tile_c_i, d.candidates) if good)
+    fill!(detector.candidates, false)
+    tforeach(todo; ntasks = d.ntasks, scheduler=:greedy) do (tile, c₀, i)
+        detector = take!(d.pool)
+        _tags = detector(img[tile...])
+        put!(d.pool, detector)
+        if !isempty(_tags)
+            d.candidates[i] = true
+        end
         for tag in _tags 
-            if tag.id < ntags
-                push!(tags[tag.id + 1], round.(Int, SV(tag.c) + c₀))
+            if tag.id < d.ntags
+                push!(d.tags[tag.id + 1], round.(Int, SV(tag.c) + c₀))
             end
         end
     end
+    dilate!(d.candidates)
+    d.candidates[:, 1] .= true
+    d.candidates[:, end] .= true
+    d.candidates[1, :] .= true
+    d.candidates[end, :] .= true
 end
 
 mutable struct FPS{N}
@@ -73,18 +66,16 @@ end
 
 include(joinpath(@__DIR__(), "../server/DetectBees/src/camera.jl"))
 
-
 mode = 4
 camera_mode = camera_modes[mode]
 
 const cam = Camera(camera_mode)
+const detector = Detector((camera_mode.w, camera_mode.h), 2Threads.nthreads(), 200, 1000, Threads.nthreads())
 
-const detector = Detector(2Threads.nthreads())
-const fps = FPS(50)
-const tags = [CircularBuffer{SVI}(1000) for _ in 1:ntags]
+# const fps = FPS(50)
 task = Threads.@spawn while isopen(cam)
     snap!(cam)
-    detect!(tags, detector, cam.Y)
+    detector(cam.Y)
     # tick!(fps)
     yield()
 end
@@ -100,7 +91,7 @@ function mydraw!(img, tag::SVI)
 end
 @get "/frame" function()
     rgb = map(RGB ∘ Gray, normedview(cam.Y))
-    foreach(tag -> mydraw!(rgb, last(tag)), filter(!isempty, tags))
+    foreach(tag -> mydraw!(rgb, last(tag)), filter(!isempty, detector.tags))
     foreach(empty!, tags) 
     imresize!(smallerY, rgb) 
     String(jpeg_encode(smallerY; transpose=true))
