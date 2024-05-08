@@ -29,13 +29,15 @@ end
 
 const ntags = 200
 
-detect!(tags, detector, img; ntasks=Threads.nthreads()) = tforeach(TileIterator(axes(img), (110, 111)); ntasks, scheduler=:greedy) do i
-    _tags = detector(img[i...])
-    c₀ = SV(reverse(minimum.(i)))
+function detect!(tags, detector, img; ntasks=Threads.nthreads()) 
     fill!(tags, missing)
-    for tag in _tags 
-        if tag.id < ntags
-            tags[tag.id + 1] = round.(Int, SV(tag.c) + c₀)
+    tforeach(TileIterator(axes(img), (110, 111)); ntasks, scheduler=:greedy) do i
+        _tags = detector(img[i...])
+        c₀ = SV(reverse(minimum.(i)))
+        for tag in _tags 
+            if tag.id < ntags
+                tags[tag.id + 1] = round.(Int, SV(tag.c) + c₀)
+            end
         end
     end
 end
