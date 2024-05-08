@@ -20,7 +20,7 @@ function (d::Detector)(img)
     try
         return one_detector(img)
     catch ex
-        @warn ex
+        # @warn ex
         return AprilTag[]
     finally
         put!(d.detectors, one_detector)
