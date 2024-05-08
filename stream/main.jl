@@ -4,7 +4,6 @@ using OhMyThreads, AprilTags, StaticArrays, TiledIteration, DataStructures
 const SV = SVector{2, Float64}
 const SVI = SVector{2, Int}
 
-
 struct Detector
     detectors::Channel{AprilTagDetector}
     function Detector(ndetectors::Int)
@@ -68,11 +67,13 @@ const cam = Camera(camera_mode)
 const detector = Detector(2Threads.nthreads())
 const fps = FPS(50)
 const tags = Vector{Union{Missing, SVI}}(undef, ntags)
+const status = Ref((; img = cam.Y, tags))
 task = Threads.@spawn while isopen(cam)
     snap!(cam)
     detect!(tags, detector, cam.Y)
     # tick!(fps)
     yield()
+    status[] = (; img = cam.Y, tags)
 end
 
 using Oxygen, ImageCore, ImageTransformations, JpegTurbo, ImageDraw
@@ -85,9 +86,10 @@ function mydraw!(img, tag::SVI)
     return nothing
 end
 @get "/frame" function()
-    img = map(RGB ∘ Gray, normedview(cam.Y))
-    foreach(tag -> mydraw!(img, tag), deepcopy(tags))
-    imresize!(smallerY, img) 
+    img, _tags = status[]
+    rgb = map(RGB ∘ Gray, normedview(img))
+    foreach(tag -> mydraw!(rgb, tag), _tags)
+    imresize!(smallerY, rgb) 
     String(jpeg_encode(smallerY; transpose=true))
 end
 

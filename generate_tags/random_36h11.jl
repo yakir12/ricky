@@ -38,22 +38,18 @@ tag_bytes = 10 # due to the family
 pt_per_unit = tag_width*mm2pt/tag_bytes
 
 
-ids = 0:200
-colors = [RGB(0,0,0)]
-ncolors = length(colors)
+ids = 0:199
 
 const a4 = (210, 297)
 fig_size = floor.(Int, a4 .* tag_bytes ./ tag_width)
 fig = Figure(size = fig_size, figure_padding = 0);
 ax = Axis(fig[1, 1], aspect = DataAspect(), limits=(0, fig_size[1], 0, fig_size[2]), backgroundcolor = :gray80)
-d = MixtureModel([MvNormal([fig_size...] ./ 1.8, 6max(fig_size...)*I), MvNormal([fig_size...] ./ 3, 2min(fig_size...)*I)])
-for _ in 1:100
-    id = rand(ids)
-    color = rand(colors)
-    offset = Point2f(rand(d))
-    θ = 0#rand()*2π
-    plot1tag!(ax, offset, id, color, θ)
-end
 hidedecorations!(ax)
 hidespines!(ax)
+d = MixtureModel([MvNormal([fig_size...] ./ 1.8, 6max(fig_size...)*I), MvNormal([fig_size...] ./ 3, 2min(fig_size...)*I)])
+for id in ids
+    offset = Point2f(rand(d))
+    θ = rand()*2π
+    plot1tag!(ax, offset, id, RGB(0,0,0), θ)
+end
 save("tags_$tag_width.pdf", fig; pt_per_unit)
