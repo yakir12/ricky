@@ -34,7 +34,7 @@ end
 const mm2pt = 72/25.4 # multiply mm to get points
 # const a4 = (595, 842)
 
-tag_width = 8
+tag_width = 3.5
 
 tag_bytes = 10 # due to the family
 pt_per_unit = tag_width*mm2pt/tag_bytes
