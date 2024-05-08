@@ -100,6 +100,7 @@ end
 @get "/frame" function()
     rgb = map(RGB ∘ Gray, normedview(cam.Y))
     foreach(tag -> mydraw!(rgb, last(tag)), filter(!isempty, tags))
+    foreach(empty!, tags) 
     imresize!(smallerY, rgb) 
     String(jpeg_encode(smallerY; transpose=true))
 end
