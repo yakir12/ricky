@@ -43,13 +43,12 @@ const ntags = 200
 #     end
 # end
 function detect!(tags, detector, img; ntasks=Threads.nthreads()) 
-    fill!(tags, missing)
     tforeach(TileIterator(axes(img), (110, 111)); ntasks, scheduler=:greedy) do i
         _tags = detector(img[i...])
         c₀ = SV(reverse(minimum.(i)))
         for tag in _tags 
             if tag.id < ntags
-                tags[tag.id + 1] = round.(Int, SV(tag.c) + c₀)
+                push!(tags[tag.id + 1], round.(Int, SV(tag.c) + c₀))
             end
         end
     end
@@ -81,15 +80,13 @@ const cam = Camera(camera_mode)
 
 const detector = Detector(2Threads.nthreads())
 const fps = FPS(50)
-const tags = Vector{Union{Missing, SVI}}(undef, ntags)
-# const status = Ref((; img = cam.Y, tags))
-# task = Threads.@spawn while isopen(cam)
-#     snap!(cam)
-#     detect!(tags, detector, cam.Y)
-#     # tick!(fps)
-#     yield()
-#     status[] = (; img = cam.Y, tags)
-# end
+const tags = [CircularBuffer{SVI}(1000) for _ in 1:ntags]
+task = Threads.@spawn while isopen(cam)
+    snap!(cam)
+    detect!(tags, detector, cam.Y)
+    # tick!(fps)
+    yield()
+end
 
 using Oxygen, ImageCore, ImageTransformations, JpegTurbo, ImageDraw
 sz = round.(Int, (camera_mode.w, camera_mode.h) ./ 8)
@@ -101,10 +98,8 @@ function mydraw!(img, tag::SVI)
     return nothing
 end
 @get "/frame" function()
-    snap!(cam)
-    detect!(tags, detector, cam.Y)
     rgb = map(RGB ∘ Gray, normedview(cam.Y))
-    foreach(tag -> mydraw!(rgb, tag), tags)
+    foreach(tag -> mydraw!(rgb, last(tag)), tags)
     imresize!(smallerY, rgb) 
     String(jpeg_encode(smallerY; transpose=true))
 end
