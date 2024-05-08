@@ -82,14 +82,14 @@ const cam = Camera(camera_mode)
 const detector = Detector(2Threads.nthreads())
 const fps = FPS(50)
 const tags = Vector{Union{Missing, SVI}}(undef, ntags)
-const status = Ref((; img = cam.Y, tags))
-task = Threads.@spawn while isopen(cam)
-    snap!(cam)
-    detect!(tags, detector, cam.Y)
-    # tick!(fps)
-    yield()
-    status[] = (; img = cam.Y, tags)
-end
+# const status = Ref((; img = cam.Y, tags))
+# task = Threads.@spawn while isopen(cam)
+#     snap!(cam)
+#     detect!(tags, detector, cam.Y)
+#     # tick!(fps)
+#     yield()
+#     status[] = (; img = cam.Y, tags)
+# end
 
 using Oxygen, ImageCore, ImageTransformations, JpegTurbo, ImageDraw
 sz = round.(Int, (camera_mode.w, camera_mode.h) ./ 8)
@@ -101,9 +101,10 @@ function mydraw!(img, tag::SVI)
     return nothing
 end
 @get "/frame" function()
-    img, _tags = status[]
-    rgb = map(RGB ∘ Gray, normedview(img))
-    foreach(tag -> mydraw!(rgb, tag), _tags)
+    snap!(cam)
+    detect!(tags, detector, cam.Y)
+    rgb = map(RGB ∘ Gray, normedview(cam.Y))
+    foreach(tag -> mydraw!(rgb, tag), tags)
     imresize!(smallerY, rgb) 
     String(jpeg_encode(smallerY; transpose=true))
 end
