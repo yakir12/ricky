@@ -35,7 +35,7 @@ const ntags = 200
 
 function detect!(tags, detector, img; ntasks=Threads.nthreads()) 
     fill!(tags, missing)
-    _tags = detector(img)
+    _tags = detector(collect(img))
     for tag in _tags 
         if tag.id < ntags
             tags[tag.id + 1] = round.(Int, SV(tag.c))
