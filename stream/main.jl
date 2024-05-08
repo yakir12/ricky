@@ -70,7 +70,7 @@ end
 include(joinpath(@__DIR__(), "../server/DetectBees/src/camera.jl"))
 
 
-mode = 4
+mode = 1
 camera_mode = camera_modes[mode]
 
 const cam = Camera(camera_mode)
