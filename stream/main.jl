@@ -31,7 +31,8 @@ const ntags = 200
 
 function detect!(tags, detector, img; ntasks=Threads.nthreads()) 
     fill!(tags, missing)
-    tforeach(TileIterator(axes(img), (110, 111)); ntasks, scheduler=:greedy) do i
+    # tforeach(TileIterator(axes(img), (110, 111)); ntasks, scheduler=:greedy) do i
+    tforeach(TileIterator(axes(img), sz); ntasks, scheduler=:greedy) do i
         _tags = detector(img[i...])
         c₀ = SV(reverse(minimum.(i)))
         for tag in _tags 

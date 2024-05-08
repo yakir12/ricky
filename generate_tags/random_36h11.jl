@@ -1,5 +1,5 @@
 # using GLMakie, AprilTags, GeometryBasics
-using CairoMakie, AprilTags, GeometryBasics
+using PolygonOps, CairoMakie, AprilTags, GeometryBasics
 using Colors, ColorTypes, FixedPointNumbers
 using CoordinateTransformations, Rotations
 using Distributions, LinearAlgebra
@@ -12,20 +12,22 @@ function rectcommands(r, rot)
     [MoveTo(p1), LineTo(p2), LineTo(p3), LineTo(p4), ClosePath()]
 end
 
-function get_path(id, θ)
+function get_path(id, rot)
     tag = getAprilTagImage(id, AprilTags.tag36h11)
     mat = tag .== zero(tag[1])
-    rot = recenter(Angle2d(θ), Point2f(5, 5))
     return BezierPath(reduce(vcat, rectcommands(Rect((i - 1), (j - 1), 1, 1), rot) for i in axes(mat, 1) for j in axes(mat, 2) if mat[i, j]))
 end
 
-function plot1tag!(ax, offset, id, color, θ)
-    rot = recenter(Angle2d(θ), Point2f(5, 5))
-    bkgd = decompose(Point2f, Rect(0, 0, tag_bytes, tag_bytes))
+function get_bkgd(rot, offset, n)
+    bkgd = decompose(Point2f, Rect(0, 0, tag_bytes, tag_bytes), n)
     bkgd[3:4] .= bkgd[[4,3]]
     bkgd .= rot.(bkgd)
-    poly!(ax, bkgd .+ offset, color = :white)
-    path = get_path(id, θ)
+    return bkgd .+ offset
+end
+
+function plot1tag!(ax, bkgd, offset, id, color, rot)
+    poly!(ax, bkgd, color = :white)
+    path = get_path(id, rot)
     poly!(ax, path + offset; color)
 end
 
@@ -46,10 +48,17 @@ fig = Figure(size = fig_size, figure_padding = 0);
 ax = Axis(fig[1, 1], aspect = DataAspect(), limits=(0, fig_size[1], 0, fig_size[2]), backgroundcolor = :gray80)
 hidedecorations!(ax)
 hidespines!(ax)
-d = MixtureModel([MvNormal([fig_size...] ./ 1.8, 6max(fig_size...)*I), MvNormal([fig_size...] ./ 3, 2min(fig_size...)*I)])
+d = MixtureModel([MvNormal([fig_size...] ./ 1.8, 6max(fig_size...)*I), MvNormal([fig_size...] ./ 3, min(fig_size...)*I)])
+bkgds = []
 for id in ids
     offset = Point2f(rand(d))
     θ = rand()*2π
-    plot1tag!(ax, offset, id, RGB(0,0,0), θ)
+    rot = recenter(Angle2d(θ), Point2f(5, 5))
+    _bkgd = get_bkgd(rot, offset, 11)
+    if all(bkgd -> all(p -> PolygonOps.inpolygon(p, bkgd) == 0, _bkgd), bkgds)
+        _bkgd = get_bkgd(rot, offset, 2)
+        push!(bkgds, _bkgd[[1:4; 1]])
+        plot1tag!(ax, _bkgd, offset, id, RGB(0,0,0), rot)
+    end
 end
 save("tags_$tag_width.pdf", fig; pt_per_unit)
