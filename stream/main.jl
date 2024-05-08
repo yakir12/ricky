@@ -31,17 +31,25 @@ const ntags = 200
 
 function detect!(tags, detector, img; ntasks=Threads.nthreads()) 
     fill!(tags, missing)
-    # tforeach(TileIterator(axes(img), (110, 111)); ntasks, scheduler=:greedy) do i
-    tforeach(TileIterator(axes(img), sz); ntasks, scheduler=:greedy) do i
-        _tags = detector(img[i...])
-        c₀ = SV(reverse(minimum.(i)))
-        for tag in _tags 
-            if tag.id < ntags
-                tags[tag.id + 1] = round.(Int, SV(tag.c) + c₀)
-            end
+    _tags = detector(img)
+    for tag in _tags 
+        if tag.id < ntags
+            tags[tag.id + 1] = round.(Int, SV(tag.c))
         end
     end
 end
+# function detect!(tags, detector, img; ntasks=Threads.nthreads()) 
+#     fill!(tags, missing)
+#     tforeach(TileIterator(axes(img), (110, 111)); ntasks, scheduler=:greedy) do i
+#         _tags = detector(img[i...])
+#         c₀ = SV(reverse(minimum.(i)))
+#         for tag in _tags 
+#             if tag.id < ntags
+#                 tags[tag.id + 1] = round.(Int, SV(tag.c) + c₀)
+#             end
+#         end
+#     end
+# end
 
 mutable struct FPS{N}
     i::Int
@@ -62,7 +70,7 @@ end
 include(joinpath(@__DIR__(), "../server/DetectBees/src/camera.jl"))
 
 
-mode = 1
+mode = 4
 camera_mode = camera_modes[mode]
 
 const cam = Camera(camera_mode)
