@@ -9,7 +9,7 @@ struct Detector
     pool::Channel{AprilTagDetector}
     ntags::Int
     tags::Vector{CircularBuffer{SVI}}
-    tile_c_i::Tuple{Tuple{UnitRange{Int64}, UnitRange{Int64}}, SVector{2, Float64}, CartesianIndex{2}}
+    tile_c_i::Base.Iterators.Zip{Tuple{Tuple{UnitRange{Int64}, UnitRange{Int64}}, SVector{2, Float64}, CartesianIndex{2}}}
     candidates::BitMatrix
     ntasks::Int
     function Detector(sz, ndetectors, ntags, npoints, ntasks)
