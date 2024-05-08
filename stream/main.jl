@@ -28,6 +28,9 @@ struct Detector
 end
 
 function (d::Detector)(img)
+    if !any(d.candidates)
+        fill!(d.candidates, true)
+    end
     todo = [tile_c_i for (tile_c_i, good) in zip(d.tile_c_i, d.candidates) if good]
     fill!(detector.candidates, false)
     tforeach(todo; ntasks = d.ntasks, scheduler=:greedy) do (tile, c₀, i)
