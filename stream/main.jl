@@ -18,7 +18,7 @@ struct Detector
         foreach(1:ndetectors) do _
             put!(pool, AprilTagDetector()) 
         end
-        tiles = TileIterator(Base.OneTo.(sz), (507, 304))
+        tiles = TileIterator(Base.OneTo.(sz), (52, 76))
         c₀ = [SV(reverse(minimum.(i))) for i in tiles]
         tile_c_i = zip(tiles, c₀, eachindex(tiles))
         ntiles = size(tiles)
@@ -44,10 +44,11 @@ function (d::Detector)(img)
         end
     end
     dilate!(d.candidates)
-    d.candidates[:, 1] .= true
-    d.candidates[:, end] .= true
-    d.candidates[1, :] .= true
-    d.candidates[end, :] .= true
+    # d.candidates[:, 1] .= true
+    # d.candidates[:, end] .= true
+    # d.candidates[1, :] .= true
+    # d.candidates[end, :] .= true
+    return nothing
 end
 
 mutable struct FPS{N}
