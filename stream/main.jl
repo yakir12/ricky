@@ -9,7 +9,7 @@ struct Detector
     pool::Channel{AprilTagDetector}
     ntags::Int
     tags::Vector{CircularBuffer{SVI}}
-    tile_c_i
+    tile_c_i::Tuple{Tuple{UnitRange{Int64}, UnitRange{Int64}}, SVector{2, Float64}, CartesianIndex{2}}
     candidates::BitMatrix
     ntasks::Int
     function Detector(sz, ndetectors, ntags, npoints, ntasks)
@@ -28,7 +28,7 @@ struct Detector
 end
 
 function (d::Detector)(img)
-    todo = (tile_c_i for (tile_c_i, good) in zip(d.tile_c_i, d.candidates) if good)
+    todo = [tile_c_i for (tile_c_i, good) in zip(d.tile_c_i, d.candidates) if good]
     fill!(detector.candidates, false)
     tforeach(todo; ntasks = d.ntasks, scheduler=:greedy) do (tile, c₀, i)
         detector = take!(d.pool)
