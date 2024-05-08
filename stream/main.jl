@@ -18,7 +18,7 @@ struct Detector
         foreach(1:ndetectors) do _
             put!(pool, AprilTagDetector()) 
         end
-        tiles = TileIterator(Base.OneTo.(sz), (52, 76))
+        tiles = TileIterator(Base.OneTo.(sz), (104, 152))
         c₀ = [SV(reverse(minimum.(i))) for i in tiles]
         tile_c_i = zip(tiles, c₀, eachindex(tiles))
         ntiles = size(tiles)
