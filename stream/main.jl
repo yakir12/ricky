@@ -22,7 +22,7 @@ struct Detector
         tile_c_i = zip(tiles, c₀, eachindex(tiles))
         ntiles = size(tiles)
         candidates = trues(ntiles)
-        return new(pool, tags, tile_c_i, candidates)
+        return new(pool, tags, tile_c_i, candidates, ntasks)
     end
 end
 
