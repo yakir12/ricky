@@ -11,7 +11,7 @@ struct Detector
     tile_c_i
     candidates::BitMatrix
     ntasks::Int
-    function TiledImage(sz, ndetectors, ntags, npoints, ntasks)
+    function Detector(sz, ndetectors, ntags, npoints, ntasks)
         pool = Channel{AprilTagDetector}(ndetectors)
         tags =  [CircularBuffer{SVI}(npoints) for _ in 1:ntags]
         foreach(1:ndetectors) do _
