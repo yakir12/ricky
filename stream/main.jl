@@ -89,12 +89,12 @@ task = Threads.@spawn while isopen(cam)
 end
 
 using Oxygen, ImageCore, ImageTransformations, JpegTurbo, ImageDraw
-sz = round.(Int, (camera_mode.w, camera_mode.h) ./ 32)
+sz = round.(Int, (camera_mode.w, camera_mode.h) ./ 16)
 const smallerY = Matrix{RGB{N0f8}}(undef, sz)
 mydraw!(_, ::Missing) = nothing
 function mydraw!(img, tag::SVI)
     x, y = tag
-    draw!(img, CirclePointRadius(x, y, 20), colorant"red")
+    draw!(img, CirclePointRadius(x, y, 40), colorant"red")
     return nothing
 end
 @get "/frame" function()
