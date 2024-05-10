@@ -66,7 +66,7 @@ for mode in 1:4
         detector(cam.Y)
         yield()
     end
-    println(round(Int, 1000t/n), " ms")
+    println(round(Int, n/t), " fps")
     close(cam)
     foreach(1:ndetectors) do _
         AprilTags.freeDetector!(take!(detector.pool))
