@@ -47,7 +47,7 @@ function tick!(fps::FPS{N}) where N
     end
 end
 
-function plot(xs, ys)
+function plot(io, camera_mode, xs, ys)
     show(io, scatterplot(xs, ys, xlim=(0, camera_mode.w), ylim=(0, camera_mode.h)))
     out = read(io, String)
     REPL.Terminals.clear(terminal)
@@ -74,7 +74,7 @@ for mode in 1:4
     ts[mode] = @elapsed for i in 1:n
         snap!(cam)
         tags = detector(cam.Y)
-        plot(first.(tags), last.(tags))
+        plot(io, camera_mode, first.(tags), last.(tags))
         yield()
     end
     _cursor_show(stdout)
