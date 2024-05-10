@@ -54,19 +54,19 @@ end
 
 include(joinpath(@__DIR__(), "../server/DetectBees/src/camera.jl"))
 
-n = 100
+n = 500
 
+ts = zeros(4)
 for mode in 1:4
     camera_mode = camera_modes[mode]
     cam = Camera(camera_mode)
     ndetectors = 2Threads.nthreads()
     detector = Detector((camera_mode.w, camera_mode.h), ndetectors, 200, Threads.nthreads())
-    t = @elapsed for i in 1:n
+    ts[mode] = @elapsed for i in 1:n
         snap!(cam)
         detector(cam.Y)
         yield()
     end
-    println(round(Int, n/t), " fps")
     close(cam)
     foreach(1:ndetectors) do _
         AprilTags.freeDetector!(take!(detector.pool))
@@ -74,3 +74,4 @@ for mode in 1:4
     close(detector.pool)
 end
 
+fps = round.(Int, n ./ts)
