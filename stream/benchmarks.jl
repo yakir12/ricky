@@ -8,7 +8,7 @@ const SVI = SVector{2, Int}
 struct Detector
     pool::Channel{AprilTagDetector}
     ntags::Int
-    tile_c_i
+    tile_c
     ntasks::Int
     function Detector(sz, ndetectors, ntags, ntasks)
         pool = Channel{AprilTagDetector}(ndetectors)
@@ -17,13 +17,13 @@ struct Detector
         end
         tiles = TileIterator(Base.OneTo.(sz), (104, 152))
         c₀ = [SV(reverse(minimum.(i))) for i in tiles]
-        tile_c_i = zip(tiles, c₀, eachindex(tiles))
-        return new(pool, ntags, tile_c_i, ntasks)
+        tile_c = zip(tiles, c₀)
+        return new(pool, ntags, tile_c, ntasks)
     end
 end
 
 function (d::Detector)(img)
-    tforeach(d.tile_c_i; ntasks = d.ntasks, scheduler=:greedy) do (tile, c₀, i)
+    tforeach(d.tile_c; ntasks = d.ntasks, scheduler=:greedy) do (tile, c₀)
         detector = take!(d.pool)
         _tags = detector(img[tile...])
         put!(d.pool, detector)
