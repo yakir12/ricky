@@ -74,7 +74,7 @@ for mode in 1:4
     ts[mode] = @elapsed for i in 1:n
         snap!(cam)
         tags = detector(cam.Y)
-        plot(io, camera_mode, first.(tags), last.(tags))
+        plot(io, camera_mode, last.(tags), first.(tags))
         yield()
     end
     _cursor_show(stdout)
