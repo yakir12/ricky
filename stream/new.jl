@@ -44,6 +44,12 @@ end
 
 isalive(b::Bee) = b.radius < max_radius
 
+function found!(bee, tag_c, mi)
+    c0 = SVI(reverse(round.(Int, tag_c)))
+    bee.center = c0 .+ Tuple(mi)
+    bee.radius = min_radius
+end
+
 function (bee::Bee)(buff)
     i = indices(bee)
     cropped = buff[i]
@@ -52,9 +58,7 @@ function (bee::Bee)(buff)
     end
     for tag in tags
         if tag.id == bee.id
-            c0 = SVI(reverse(round.(Int, tag_c)))
-            bee.center = c0 .+ Tuple(minimum(i))
-            bee.radius = min_radius
+            found!(bee, tag.c, minimum(i))
             return nothing
         end
     end
@@ -107,7 +111,7 @@ task2 = Threads.@spawn while isopen(cam)
         if i ≤ nbees
             bee = bees[i]
             if !isalive(bee)
-                found!(bee, tag.c, 1, 1)
+                found!(bee, tag.c, CartesianIndex(1, 1))
             end
         end
     end
