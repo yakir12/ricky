@@ -97,7 +97,6 @@ task1 = Threads.@spawn while isopen(cam)
     tforeach(bees) do bee
         if isalive(bee)
             bee(cam.Y)
-            println(bee.center)
         end
     end
     points = [bee.center for bee in bees if isalive(bee)]
