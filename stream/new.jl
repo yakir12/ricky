@@ -107,7 +107,7 @@ function tick!(fps::FPS{N}) where N
     end
 end
 
-fps = FPS(30)
+# fps = FPS(30)
 
 cam = Camera(camera_mode)
 task1 = Threads.@spawn while isopen(cam)
@@ -117,7 +117,7 @@ task1 = Threads.@spawn while isopen(cam)
             bee(cam.Y)
         end
     end
-    tick!(fps)
+    # tick!(fps)
     points = [bee.center for bee in bees if isalive(bee)]
     plot(io, first.(points), last.(points))
 end
