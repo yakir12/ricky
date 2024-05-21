@@ -1,3 +1,8 @@
+# TODO: try to easily see how many tags you miss every frame
+# test the 4 mm or even the 3.5 mm tags
+# connect through oxygen
+# record a demo
+# update ricky
 using Statistics
 using OhMyThreads, AprilTags, StaticArrays, TiledIteration, DataStructures, ImageMorphology
 using UnicodePlots
