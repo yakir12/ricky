@@ -77,7 +77,7 @@ bees = Bee.(0:nbees - 1)
 
 
 function plot(io, xs, ys)
-    show(io, scatterplot(xs, ys; xlim=(0, camera_mode.w), ylim=(0, camera_mode.h), width = camera_mode.w, height = camera_mode.h))
+    show(io, scatterplot(xs, ys; xlim=(0, camera_mode.w), ylim=(0, camera_mode.h), width = camera_mode.w ÷ 2, height = camera_mode.h ÷ 2))
     out = read(io, String)
     REPL.Terminals.clear(terminal)
     println(out)
