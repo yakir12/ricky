@@ -100,7 +100,7 @@ end
 
 @async while isopen(cam)
     tags = borrow(POOL) do detector
-        detector(cam.Y)
+        detector(collect(cam.Y))
     end
     for tag in tags
         i = tag.id + 1
