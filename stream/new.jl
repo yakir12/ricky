@@ -76,7 +76,7 @@ camera_mode = camera_modes[1]
 
 
 function plot(io, p, xs, ys)
-    show(io, scatterplot!(p, xs, ys))
+    show(io, scatterplot!(p, [xs], [ys]))
     out = read(io, String)
     REPL.Terminals.clear(terminal)
     println(out)
