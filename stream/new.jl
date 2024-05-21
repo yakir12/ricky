@@ -88,7 +88,7 @@ p = Plot(; xlim=(0, camera_mode.w), ylim=(0, camera_mode.h))
 
 
 cam = Camera(camera_mode)
-@async while isopen(cam)
+task1 = Threads.@spawn while isopen(cam)
     snap!(cam)
     tforeach(bees) do bee
         if isalive(bee)
@@ -98,7 +98,7 @@ cam = Camera(camera_mode)
     end
 end
 
-@async while isopen(cam)
+task2 = Threads.@spawn while isopen(cam)
     tags = borrow(POOL) do detector
         detector(collect(cam.Y))
     end
