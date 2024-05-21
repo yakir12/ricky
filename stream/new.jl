@@ -3,7 +3,6 @@ using OhMyThreads, AprilTags, StaticArrays, TiledIteration, DataStructures, Imag
 using UnicodePlots
 import REPL
 
-const SV = SVector{2, Float64}
 const SVI = SVector{2, Int}
 
 const min_radius::Int = 25
@@ -11,38 +10,66 @@ const widen_radius::Int = 5
 const max_radius::Int = 50
 const sz::Tuple{Int, Int} = (990, 1332)
 
-struct Bee
+function borrow(f::Function, c::Channel)
+    v = take!(c)
+    try
+        return f(v)
+    finally
+        put!(c, v)
+    end
+end
+
+function get_pool(ndetectors)
+    pool = Channel{AprilTagDetector}(ndetectors)
+    foreach(1:ndetectors) do _
+        put!(pool, AprilTagDetector()) 
+    end
+    return pool
+end
+
+const POOL = get_pool(10)
+
+mutable struct Bee
     id::Int
-    detector::AprilTagDetector
-    rect::MVector{4, Int}
-    Bee(id::Int) = new(id, AprilTagDetector(), MVector(1, 1, 2max_radius + 1, 2max_radius + 1))
+    center::SVI
+    radius::Int
+    Bee(id::Int) = new(id, sz .÷ 2, max_radius)
 end
 
-radius(b::Bee) = (b.rect[3] - b.rect[1]) ÷ 2
-
-center(b::Bee) = b.rect[1:2] .+ radius(b)
-
-isalive(b::Bee) = radius(b) < max_radius
-
-function found!(bee, tag_c, r1, c1)
-    c0 = SVI(reverse(round.(Int, tag_c)))
-    c = c0 + SVI(r1, c1)
-    bee.rect[1:2] .= max.(1, c .- min_radius)
-    bee.rect[3:4] .= min.(sz, c .+ min_radius)
+function indices(b::Bee) 
+    r1, c1 = max.(1, b.center .- b.radius)
+    r2, c2 = min.(sz, b.center .+ b.radius)
+    return CartesianIndices((r1:r2, c1:c2))
 end
+
+isalive(b::Bee) = b.radius < max_radius
 
 function (bee::Bee)(buff)
-    r1, c1, r2, c2 = bee.rect
-    cropped = buff[r1:r2, c1:c2]
-    tags = bee.detector(cropped)
+    i = indices(bee)
+    cropped = buff[i]
+    tags = burrow(POOL) do detector
+        detector(cropped)
+    end
     for tag in tags
         if tag.id == bee.id
-            return found!(bee, tag.c, r1, c1)
+            c0 = SVI(reverse(round.(Int, tag_c)))
+            bee.center = c0 .+ Tuple(minimum(i))
+            bee.radius = min_radius
+            return nothing
         end
     end
-    bee.rect[1:2] .= max.(1, bee.rect[1:2] .- widen_radius)
-    bee.rect[3:4] .= min.(sz, bee.rect[3:4] .+ widen_radius)
+    bee.radius .+= widen_radius
+    return nothing
 end
+
+
+include(joinpath(@__DIR__(), "../server/DetectBees/src/camera.jl"))
+
+nbees = 5
+bees = Bee.(0:nbees - 1)
+
+camera_mode = camera_modes[1]
+
 
 function plot(io, p, xs, ys)
     show(io, scatterplot!(p, xs, ys))
@@ -55,33 +82,26 @@ _cursor_show(io::IO) = print(io, "\x1b[?25h")
 
 terminal = REPL.Terminals.TTYTerminal("", stdin, stdout, stderr)
 
-    _cursor_hide(stdout)
-    io = IOContext(PipeBuffer(), :color=>true)
-    p = Plot(; xlim=(0, camera_mode.w), ylim=(0, camera_mode.h))
+_cursor_hide(stdout)
+io = IOContext(PipeBuffer(), :color=>true)
+p = Plot(; xlim=(0, camera_mode.w), ylim=(0, camera_mode.h))
 
 
-include(joinpath(@__DIR__(), "../server/DetectBees/src/camera.jl"))
-
-
-
-nbees = 5
-bees = Bee.(0:nbees - 1)
-
-camera_mode = camera_modes[1]
 cam = Camera(camera_mode)
 @async while isopen(cam)
     snap!(cam)
     tforeach(bees) do bee
         if isalive(bee)
             bee(cam.Y)
-            plot(io, p, center(bee)...)
+            plot(io, p, bee.center...)
         end
     end
 end
 
-detector = AprilTagDetector()
 @async while isopen(cam)
-    tags = detector(cam.Y)
+    tags = burrow(POOL) do detector
+        detector(cam.Y)
+    end
     for tag in tags
         i = tag.id + 1
         if i ≤ nbees
