@@ -47,7 +47,7 @@ isalive(b::Bee) = b.radius < max_radius
 function (bee::Bee)(buff)
     i = indices(bee)
     cropped = buff[i]
-    tags = burrow(POOL) do detector
+    tags = borrow(POOL) do detector
         detector(cropped)
     end
     for tag in tags
@@ -99,7 +99,7 @@ cam = Camera(camera_mode)
 end
 
 @async while isopen(cam)
-    tags = burrow(POOL) do detector
+    tags = borrow(POOL) do detector
         detector(cam.Y)
     end
     for tag in tags
