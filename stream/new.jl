@@ -8,7 +8,6 @@ const SVI = SVector{2, Int}
 const min_radius::Int = 25
 const widen_radius::Int = 5
 const max_radius::Int = 50
-const sz::Tuple{Int, Int} = (990, 1332)
 
 function borrow(f::Function, c::Channel)
     v = take!(c)
@@ -72,7 +71,8 @@ include(joinpath(@__DIR__(), "../server/DetectBees/src/camera.jl"))
 nbees = 200
 bees = Bee.(0:nbees - 1)
 
-camera_mode = camera_modes[1]
+camera_mode = camera_modes[2]
+const sz::Tuple{Int, Int} = (camera_mode.w, camera_mode.h)
 
 
 # function plot(io, xs, ys)
@@ -106,7 +106,7 @@ function tick!(fps::FPS{N}) where N
     end
 end
 
-fps = FPS(10)
+fps = FPS(30)
 
 cam = Camera(camera_mode)
 task1 = Threads.@spawn while isopen(cam)
