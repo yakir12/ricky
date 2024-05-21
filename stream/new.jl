@@ -9,6 +9,10 @@ const min_radius::Int = 25
 const widen_radius::Int = 5
 const max_radius::Int = 50
 
+include(joinpath(@__DIR__(), "../server/DetectBees/src/camera.jl"))
+camera_mode = camera_modes[2]
+const sz::Tuple{Int, Int} = (camera_mode.w, camera_mode.h)
+
 function borrow(f::Function, c::Channel)
     v = take!(c)
     try
@@ -66,13 +70,10 @@ function (bee::Bee)(buff)
 end
 
 
-include(joinpath(@__DIR__(), "../server/DetectBees/src/camera.jl"))
 
 nbees = 200
 bees = Bee.(0:nbees - 1)
 
-camera_mode = camera_modes[2]
-const sz::Tuple{Int, Int} = (camera_mode.w, camera_mode.h)
 
 
 # function plot(io, xs, ys)
