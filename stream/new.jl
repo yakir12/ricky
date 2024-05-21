@@ -62,7 +62,7 @@ function (bee::Bee)(buff)
             return nothing
         end
     end
-    bee.radius .+= widen_radius
+    bee.radius += widen_radius
     return nothing
 end
 
