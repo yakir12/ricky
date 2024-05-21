@@ -69,7 +69,7 @@ end
 
 include(joinpath(@__DIR__(), "../server/DetectBees/src/camera.jl"))
 
-nbees = 100
+nbees = 200
 bees = Bee.(0:nbees - 1)
 
 camera_mode = camera_modes[1]
