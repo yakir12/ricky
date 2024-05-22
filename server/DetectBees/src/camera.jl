@@ -1,4 +1,5 @@
-const camera_modes = ((w = 990, h = 1332, fps = 120),
+# const camera_modes = ((w = 990, h = 1332, fps = 120),
+const camera_modes = ((w = 1332, h = 990, fps = 120),
          (w = 2028, h = 1080, fps = 50),
          (w = 2028, h = 1520, fps = 40),
          (w = 4056, h = 3040, fps = 10))
@@ -29,7 +30,8 @@ struct Camera
     proc::Base.Process
     function Camera(mode)
         w, h, fps = mode
-        proc = open(`rpicam-vid --denoise cdn_off -n --framerate $fps --width $w --height $h --timeout 0 --codec yuv420 -o -`)
+        # proc = open(`rpicam-vid --denoise cdn_off -n --framerate $fps --width $w --height $h --timeout 0 --codec yuv420 -o -`)
+        proc = open(`rpicam-vid --denoise cdn_off -n --mode 1332:990:10:P --timeout 0 --codec yuv420 -o -`)
         buff, Y, u, v = get_buffer_img(w, h)
         new(buff, Y, u, v, proc)
     end
