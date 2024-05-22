@@ -31,7 +31,7 @@ struct Camera
     v::SubArray{UInt8, 2, Base.ReshapedArray{UInt8, 2, SubArray{UInt8, 1, Vector{UInt8}, Tuple{UnitRange{Int64}}, true}, Tuple{}}, Tuple{UnitRange{Int64}, StepRange{Int64, Int64}}, false}
     proc::Base.Process
     function Camera(mode::CameraMode)
-        mode, with, height, framerate = camera_modes[mode]
+        mode, width, height, framerate = camera_modes[mode]
         # proc = open(`rpicam-vid --denoise cdn_off -n --framerate $fps --width $w --height $h --timeout 0 --codec yuv420 -o -`) # 120 fps
         # proc = open(`rpicam-vid --denoise cdn_off -n --framerate $fps --mode 1332:990:10:P --timeout 0 --codec yuv420 -o -`) # only 30 fps
         # proc = open(`rpicam-vid --denoise cdn_off -n --framerate $fps --width $w --height $h --timeout 0 --codec yuv420 -o -`) # more than 120 fps
