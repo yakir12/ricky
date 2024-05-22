@@ -1,4 +1,4 @@
-using ImageCore, ColorTypes, Sixel
+using ImageCore, ColorTypes, Sixel, ImageInTerminal
 
 include(joinpath(@__DIR__(), "../server/DetectBees/src/camera.jl"))
 
@@ -6,6 +6,6 @@ cam = Camera(fastest)
 
 task = Threads.@spawn while isopen(cam)
     snap!(cam)
-    show(colorview(Gray, normedview(cam.Y)))
+    display(colorview(Gray, normedview(cam.Y))[500:600, 500:600])
 end
 
