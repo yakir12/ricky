@@ -3,7 +3,7 @@ import REPL
 
 include(joinpath(@__DIR__(), "../server/DetectBees/src/camera.jl"))
 
-cam = Camera(fastest)
+cam = Camera(fast)
 
 function plot(io, img)
     # sixel_encode(io, imresize(colorview(Gray, normedview(img))[300:400, 300:400], (300, 300)))
