@@ -82,6 +82,12 @@ bees = Bee.(0:nbees - 1)
 
 
 
+function _print(io, x)
+    show(io, x)
+    out = read(io, String)
+    REPL.Terminals.clear(terminal)
+    println(out)
+end
 function plot(io, xs, ys)
     show(io, scatterplot(xs, ys; xlim=(0, camera_mode.w), ylim=(0, camera_mode.h), width = camera_mode.h ÷ 16, height = camera_mode.w ÷ 16))
     out = read(io, String)
@@ -122,10 +128,10 @@ task1 = Threads.@spawn while isopen(cam)
             bee(cam.Y)
         end
     end
-    # println(count(isalive, bees))
+    _print(count(isalive, bees))
     # tick!(fps)
-    points = [bee.center for bee in bees if isalive(bee)]
-    plot(io, first.(points), last.(points))
+    # points = [bee.center for bee in bees if isalive(bee)]
+    # plot(io, first.(points), last.(points))
 end
 
 task2 = Threads.@spawn while isopen(cam)
