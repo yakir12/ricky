@@ -7,7 +7,7 @@ cam = Camera(fastest)
 
 function plot(img)
     REPL.Terminals.clear(terminal)
-    display(colorview(Gray, normedview(img))[500:600, 500:600])
+    display(colorview(Gray, normedview(img))[300:600, 300:600])
 end
 
 terminal = REPL.Terminals.TTYTerminal("", stdin, stdout, stderr)
