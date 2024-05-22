@@ -135,7 +135,8 @@ task1 = Threads.@spawn while isopen(cam)
     # tick!(fps)
     # points = [bee.center for bee in bees if isalive(bee)]
     # plot(io, first.(points), last.(points))
-    plot(io, rotl90(cam.Y))
+    # plot(io, rotl90(cam.Y))
+    sixel_encode(collect(colorview(Gray, normedview(img))); transpose = true)
 end
 
 task2 = Threads.@spawn while isopen(cam)
