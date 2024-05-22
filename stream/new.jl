@@ -137,7 +137,7 @@ task1 = Threads.@spawn while isopen(cam)
     # tick!(fps)
     # points = [bee.center for bee in bees if isalive(bee)]
     # plot(io, first.(points), last.(points))
-    imageplot(colorview(Gray, normedview(cam.Y)))
+    imageplot(collect(colorview(Gray, normedview(cam.Y))))
 end
 
 task2 = Threads.@spawn while isopen(cam)
