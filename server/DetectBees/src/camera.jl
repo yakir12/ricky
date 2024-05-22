@@ -1,7 +1,7 @@
 const camera_modes = ((w = 990, h = 1332, fps = 120),
          (w = 2028, h = 1080, fps = 50),
          (w = 2028, h = 1520, fps = 40),
-         (w = 4056, h = 3040, fps = 30))#fps = 10))
+         (w = 4056, h = 3040, fps = 10))
 
 function get_buffer_img(w, h)
     w2 = 64ceil(Int, w/64) # dimension adjustments to hardware restrictions
