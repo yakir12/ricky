@@ -5,7 +5,7 @@
 # record a demo
 # update ricky
 using Statistics
-import ImageInTerminal
+using ImageInTerminal
 using OhMyThreads, AprilTags, StaticArrays, TiledIteration, DataStructures, ImageMorphology
 using UnicodePlots
 import REPL
