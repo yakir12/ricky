@@ -1,8 +1,10 @@
-# const camera_modes = ((w = 990, h = 1332, fps = 120),
-const camera_modes = ((w = 1332, h = 990, fps = 120.048),
-         (w = 2028, h = 1080, fps = 50.0275),
-         (w = 2028, h = 1520, fps = 40.0096),
-         (w = 4056, h = 3040, fps = 10.0))
+@enum CameraMode fastest fast slow slowest
+
+const camera_modes = Dict(
+                          fastest => (mode = "1332:990:10:P", width = 1332, height = 990, framerate = 120.048),
+                          fast => (mode = "2028:1080:12:P", width = 2028, height = 1080, framerate = 50.0275),
+                          slow => (mode = "2028:1520:12:P", width = 2028, height = 1520, framerate = 40.0096),
+                          slowest => (mode = "4056:3040:12:P", width = 4056, height = 3040, framerate = 10.0),
 
 function get_buffer_img(w, h)
     w2 = 64ceil(Int, w/64) # dimension adjustments to hardware restrictions
@@ -28,13 +30,14 @@ struct Camera
     u::SubArray{UInt8, 2, Base.ReshapedArray{UInt8, 2, SubArray{UInt8, 1, Vector{UInt8}, Tuple{UnitRange{Int64}}, true}, Tuple{}}, Tuple{UnitRange{Int64}, StepRange{Int64, Int64}}, false}
     v::SubArray{UInt8, 2, Base.ReshapedArray{UInt8, 2, SubArray{UInt8, 1, Vector{UInt8}, Tuple{UnitRange{Int64}}, true}, Tuple{}}, Tuple{UnitRange{Int64}, StepRange{Int64, Int64}}, false}
     proc::Base.Process
-    function Camera(mode)
-        w, h, fps = mode
+    function Camera(mode::CameraMode)
+        mode, with, height, framerate = camera_modes[mode]
         # proc = open(`rpicam-vid --denoise cdn_off -n --framerate $fps --width $w --height $h --timeout 0 --codec yuv420 -o -`) # 120 fps
         # proc = open(`rpicam-vid --denoise cdn_off -n --framerate $fps --mode 1332:990:10:P --timeout 0 --codec yuv420 -o -`) # only 30 fps
         # proc = open(`rpicam-vid --denoise cdn_off -n --framerate $fps --width $w --height $h --timeout 0 --codec yuv420 -o -`) # more than 120 fps
-        proc = open(`rpicam-vid --denoise cdn_off -n --framerate $fps --width $w --height $h --mode 1332:990:10:P --timeout 0 --codec yuv420 -o -`) # only 30 fps
-        buff, Y, u, v = get_buffer_img(w, h)
+        # proc = open(`rpicam-vid --denoise cdn_off -n --framerate $fps --width $w --height $h --mode 1332:990:10:P --timeout 0 --codec yuv420 -o -`)
+        proc = open(`rpicam-vid --denoise cdn_off -n --framerate $framerate --width $width --height $height --mode $mode --timeout 0 --codec yuv420 -o -`)
+        buff, Y, u, v = get_buffer_img(width, height)
         new(buff, Y, u, v, proc)
     end
 end

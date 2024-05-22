@@ -16,8 +16,9 @@ const widen_radius::Int = 5
 const max_radius::Int = 50
 
 include(joinpath(@__DIR__(), "../server/DetectBees/src/camera.jl"))
-camera_mode = camera_modes[1]
-const sz::Tuple{Int, Int} = (camera_mode.w, camera_mode.h)
+mode = fastest
+camera_mode = camera_modes[mode]
+const sz::Tuple{Int, Int} = (camera_mode.width, camera_mode.height)
 
 function borrow(f::Function, c::Channel)
     v = take!(c)
@@ -89,7 +90,7 @@ function _print(io, x)
     println(out)
 end
 function plot(io, xs, ys)
-    show(io, scatterplot(xs, ys; xlim=(0, camera_mode.w), ylim=(0, camera_mode.h), width = camera_mode.h ÷ 16, height = camera_mode.w ÷ 16))
+    show(io, scatterplot(xs, ys; xlim=(0, camera_mode.width), ylim=(0, camera_mode.height), width = camera_mode.height ÷ 16, height = camera_mode.width ÷ 16))
     out = read(io, String)
     REPL.Terminals.clear(terminal)
     println(out)
@@ -120,7 +121,7 @@ end
 
 fps = FPS(30)
 
-cam = Camera(camera_mode)
+cam = Camera(mode)
 task1 = Threads.@spawn while isopen(cam)
     snap!(cam)
     # tforeach(bees) do bee
