@@ -16,7 +16,7 @@ const widen_radius::Int = 5
 const max_radius::Int = 50
 
 include(joinpath(@__DIR__(), "../server/DetectBees/src/camera.jl"))
-camera_mode = camera_modes[4]
+camera_mode = camera_modes[1]
 const sz::Tuple{Int, Int} = (camera_mode.w, camera_mode.h)
 
 function borrow(f::Function, c::Channel)
