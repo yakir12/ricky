@@ -1,4 +1,4 @@
-using ImageCore, ColorTypes, Sixel, ImageInTerminal
+using ImageCore, ColorTypes, Sixel, ImageInTerminal, ImageTransformations
 import REPL
 
 include(joinpath(@__DIR__(), "../server/DetectBees/src/camera.jl"))
@@ -6,7 +6,7 @@ include(joinpath(@__DIR__(), "../server/DetectBees/src/camera.jl"))
 cam = Camera(fastest)
 
 function plot(io, img)
-    sixel_encode(io, colorview(Gray, normedview(img))[300:600, 300:600])
+    sixel_encode(io, imresize(colorview(Gray, normedview(img))[300:400, 300:400], (300, 300)))
     out = read(io, String)
     REPL.Terminals.clear(terminal)
     println(out)
