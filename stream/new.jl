@@ -6,6 +6,7 @@
 # update ricky
 using Statistics
 using OhMyThreads, AprilTags, StaticArrays, TiledIteration, DataStructures, ImageMorphology
+using ImageCore, ColorTypes
 using ImageInTerminal
 using UnicodePlots
 import REPL
