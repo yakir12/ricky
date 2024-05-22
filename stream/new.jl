@@ -119,7 +119,7 @@ function tick!(fps::FPS{N}) where N
     end
 end
 
-fps = FPS(camera_mode.framerate)
+fps = FPS(round(Int, camera_mode.framerate))
 
 cam = Camera(mode)
 task1 = Threads.@spawn while isopen(cam)
