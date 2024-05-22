@@ -16,9 +16,9 @@ _cursor_hide(io::IO) = print(io, "\x1b[?25l")
 _cursor_show(io::IO) = print(io, "\x1b[?25h")
 
 terminal = REPL.Terminals.TTYTerminal("", stdin, stdout, stderr)
-
 _cursor_hide(stdout)
 io = IOContext(PipeBuffer(), :color=>true)
+
 task = Threads.@spawn while isopen(cam)
     snap!(cam)
     plot(io, cam.Y)
