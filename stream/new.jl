@@ -6,9 +6,7 @@
 # update ricky
 using Statistics
 using OhMyThreads, AprilTags, StaticArrays, TiledIteration, DataStructures, ImageMorphology
-using ImageCore, ColorTypes
-using ImageInTerminal
-using UnicodePlots
+using ImageCore, ColorTypes, Sixel, ImageInTerminal, UnicodePlots
 import REPL
 
 const SVI = SVector{2, Int}
@@ -91,10 +89,10 @@ function _print(io, x)
     REPL.Terminals.clear(terminal)
     println(out)
 end
-function plot(io, xs, ys)
-    show(io, scatterplot(xs, ys; xlim=(1, camera_mode.width), ylim=(1, camera_mode.height), width = camera_mode.height ÷ 16, height = camera_mode.width ÷ 16))
-# function plot(io, img)
-    # show(io, imageplot(collect(colorview(Gray, normedview(img)))))
+# function plot(io, xs, ys)
+#     show(io, scatterplot(xs, ys; xlim=(1, camera_mode.width), ylim=(1, camera_mode.height), width = camera_mode.height ÷ 16, height = camera_mode.width ÷ 16))
+function plot(io, img)
+    show(io, collect(colorview(Gray, normedview(img))))
     out = read(io, String)
     REPL.Terminals.clear(terminal)
     println(out)
