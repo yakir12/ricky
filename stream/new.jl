@@ -130,9 +130,9 @@ task1 = Threads.@spawn while isopen(cam)
         end
     end
     # _print(io, count(isalive, bees))
-    tick!(fps)
-    # points = [bee.center for bee in bees if isalive(bee)]
-    # plot(io, first.(points), last.(points))
+    # tick!(fps)
+    points = [bee.center for bee in bees if isalive(bee)]
+    plot(io, first.(points), last.(points))
 end
 
 task2 = Threads.@spawn while isopen(cam)
