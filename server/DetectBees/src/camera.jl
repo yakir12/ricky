@@ -1,7 +1,7 @@
 @enum CameraMode fastest fast slow slowest
 
 const camera_modes = Dict(
-                          fastest => (mode = "1332:990:10:P", width = 1332, height = 990, framerate = 120.048),
+                          fastest => (mode = "1332:990:10:P", width = 990, height = 1332, framerate = 120.048),
                           fast => (mode = "2028:1080:12:P", width = 2028, height = 1080, framerate = 50.0275),
                           slow => (mode = "2028:1520:12:P", width = 2028, height = 1520, framerate = 40.0096),
                           slowest => (mode = "4056:3040:12:P", width = 4056, height = 3040, framerate = 10.0))
