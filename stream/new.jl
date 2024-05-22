@@ -18,7 +18,7 @@ const widen_radius::Int = 5
 const max_radius::Int = 50
 
 include(joinpath(@__DIR__(), "../server/DetectBees/src/camera.jl"))
-mode = slow
+mode = slowest
 camera_mode = camera_modes[mode]
 const sz::Tuple{Int, Int} = (camera_mode.width, camera_mode.height)
 
