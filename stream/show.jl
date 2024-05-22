@@ -3,11 +3,14 @@ import REPL
 
 include(joinpath(@__DIR__(), "../server/DetectBees/src/camera.jl"))
 
-cam = Camera(fast)
+mode = fast
+cam = Camera(mode)
+camera_mode = camera_modes[mode]
+sz = (camera_mode.width, camera_mode.height)
 
 function plot(io, img)
     # sixel_encode(io, imresize(colorview(Gray, normedview(img))[300:400, 300:400], (300, 300)))
-    sixel_encode(io, restrict(colorview(Gray, normedview(img))))
+    sixel_encode(io, imresize(colorview(Gray, normedview(img))), (400, 400sz[2] ÷ sz[1]))
     out = read(io, String)
     REPL.Terminals.clear(terminal)
     println(out)
