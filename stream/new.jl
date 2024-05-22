@@ -92,7 +92,7 @@ end
 # function plot(io, xs, ys)
 #     show(io, scatterplot(xs, ys; xlim=(1, camera_mode.width), ylim=(1, camera_mode.height), width = camera_mode.height ÷ 16, height = camera_mode.width ÷ 16))
 function plot(io, img)
-    show(io, imageplot(collect(colorview(Gray, normedview(img)))))
+    show(io, sixel_encode(collect(colorview(Gray, normedview(img)))))
     out = read(io, String)
     REPL.Terminals.clear(terminal)
     println(out)
