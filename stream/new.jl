@@ -16,7 +16,7 @@ const widen_radius::Int = 5
 const max_radius::Int = 50
 
 include(joinpath(@__DIR__(), "../server/DetectBees/src/camera.jl"))
-camera_mode = camera_modes[1]
+camera_mode = camera_modes[2]
 const sz::Tuple{Int, Int} = (camera_mode.w, camera_mode.h)
 
 function borrow(f::Function, c::Channel)
@@ -128,10 +128,10 @@ task1 = Threads.@spawn while isopen(cam)
             bee(cam.Y)
         end
     end
-    # _print(io, count(isalive, bees))
+    _print(io, count(isalive, bees))
     # tick!(fps)
-    points = [bee.center for bee in bees if isalive(bee)]
-    plot(io, first.(points), last.(points))
+    # points = [bee.center for bee in bees if isalive(bee)]
+    # plot(io, first.(points), last.(points))
 end
 
 task2 = Threads.@spawn while isopen(cam)
