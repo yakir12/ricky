@@ -7,7 +7,7 @@ cam = Camera(fastest)
 
 function plot(io, img)
     # sixel_encode(io, imresize(colorview(Gray, normedview(img))[300:400, 300:400], (300, 300)))
-    sixel_encode(io, colorview(Gray, normedview(img)))
+    sixel_encode(io, restrict(colorview(Gray, normedview(img))))
     out = read(io, String)
     REPL.Terminals.clear(terminal)
     println(out)
