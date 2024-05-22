@@ -16,7 +16,7 @@ const widen_radius::Int = 5
 const max_radius::Int = 50
 
 include(joinpath(@__DIR__(), "../server/DetectBees/src/camera.jl"))
-mode = fastest
+mode = fast
 camera_mode = camera_modes[mode]
 const sz::Tuple{Int, Int} = (camera_mode.width, camera_mode.height)
 
@@ -37,7 +37,7 @@ function get_pool(ndetectors)
     return pool
 end
 
-const POOL = get_pool(10)
+const POOL = get_pool(20)
 
 mutable struct Bee
     id::Int
@@ -119,36 +119,36 @@ function tick!(fps::FPS{N}) where N
     end
 end
 
-fps = FPS(30)
+fps = FPS(framerate)
 
 cam = Camera(mode)
 task1 = Threads.@spawn while isopen(cam)
     snap!(cam)
-    # tforeach(bees) do bee
-    #     if isalive(bee)
-    #         bee(cam.Y)
-    #     end
-    # end
+    tforeach(bees) do bee
+        if isalive(bee)
+            bee(cam.Y)
+        end
+    end
     # _print(io, count(isalive, bees))
     tick!(fps)
     # points = [bee.center for bee in bees if isalive(bee)]
     # plot(io, first.(points), last.(points))
 end
 
-# task2 = Threads.@spawn while isopen(cam)
-#     tags = borrow(POOL) do detector
-#         detector(collect(cam.Y))
-#     end
-#     for tag in tags
-#         i = tag.id + 1
-#         if i ≤ nbees
-#             bee = bees[i]
-#             if !isalive(bee)
-#                 found!(bee, tag.c, CartesianIndex(1, 1))
-#             end
-#         end
-#     end
-# end
+task2 = Threads.@spawn while isopen(cam)
+    tags = borrow(POOL) do detector
+        detector(collect(cam.Y))
+    end
+    for tag in tags
+        i = tag.id + 1
+        if i ≤ nbees
+            bee = bees[i]
+            if !isalive(bee)
+                found!(bee, tag.c, CartesianIndex(1, 1))
+            end
+        end
+    end
+end
 
 # _cursor_show(stdout)
 
