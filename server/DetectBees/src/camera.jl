@@ -30,10 +30,10 @@ struct Camera
     proc::Base.Process
     function Camera(mode)
         w, h, fps = mode
-        # proc = open(`rpicam-vid --denoise cdn_off -n --framerate $fps --width $w --height $h --timeout 0 --codec yuv420 -o -`)
-        # proc = open(`rpicam-vid --denoise cdn_off -n --framerate $fps --mode 1332:990:10:P --timeout 0 --codec yuv420 -o -`)
-        # proc = open(`rpicam-vid --denoise cdn_off -n --framerate $fps --width $w --height $h --timeout 0 --codec yuv420 -o -`)
-        proc = open(`rpicam-vid --denoise cdn_off -n --framerate $fps --mode 1332:990 --timeout 0 --codec yuv420 -o -`)
+        # proc = open(`rpicam-vid --denoise cdn_off -n --framerate $fps --width $w --height $h --timeout 0 --codec yuv420 -o -`) # 120 fps
+        # proc = open(`rpicam-vid --denoise cdn_off -n --framerate $fps --mode 1332:990:10:P --timeout 0 --codec yuv420 -o -`) # only 30 fps
+        # proc = open(`rpicam-vid --denoise cdn_off -n --framerate $fps --width $w --height $h --timeout 0 --codec yuv420 -o -`) # more than 120 fps
+        proc = open(`rpicam-vid --denoise cdn_off -n --framerate $fps --width $w --height $h --mode 1332:990:10:P --timeout 0 --codec yuv420 -o -`) # only 30 fps
         buff, Y, u, v = get_buffer_img(w, h)
         new(buff, Y, u, v, proc)
     end
