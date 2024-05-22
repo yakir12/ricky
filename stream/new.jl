@@ -5,8 +5,8 @@
 # record a demo
 # update ricky
 using Statistics
-using ImageInTerminal
 using OhMyThreads, AprilTags, StaticArrays, TiledIteration, DataStructures, ImageMorphology
+using ImageInTerminal
 using UnicodePlots
 import REPL
 
@@ -136,7 +136,7 @@ task1 = Threads.@spawn while isopen(cam)
     # tick!(fps)
     # points = [bee.center for bee in bees if isalive(bee)]
     # plot(io, first.(points), last.(points))
-    plot(io, cam.Y)
+    plot(io, collect(cam.Y))
 end
 
 task2 = Threads.@spawn while isopen(cam)
