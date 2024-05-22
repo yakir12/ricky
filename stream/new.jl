@@ -94,7 +94,7 @@ end
 # function plot(io, xs, ys)
     # show(io, scatterplot(xs, ys; xlim=(1, camera_mode.width), ylim=(1, camera_mode.height), width = camera_mode.width ÷ 16, height = camera_mode.height ÷ 16))
 function plot(io, img)
-    show(io, imageplot(img))
+    show(io, imageplot(collect(colorview(Gray, normedview(img)))))
     out = read(io, String)
     REPL.Terminals.clear(terminal)
     println(out)
@@ -137,7 +137,7 @@ task1 = Threads.@spawn while isopen(cam)
     # tick!(fps)
     # points = [bee.center for bee in bees if isalive(bee)]
     # plot(io, first.(points), last.(points))
-    imageplot(collect(colorview(Gray, normedview(cam.Y))))
+    plot(io, cam.Y)
 end
 
 task2 = Threads.@spawn while isopen(cam)
