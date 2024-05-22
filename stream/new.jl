@@ -123,31 +123,31 @@ fps = FPS(30)
 cam = Camera(camera_mode)
 task1 = Threads.@spawn while isopen(cam)
     snap!(cam)
-    tforeach(bees) do bee
-        if isalive(bee)
-            bee(cam.Y)
-        end
-    end
+    # tforeach(bees) do bee
+    #     if isalive(bee)
+    #         bee(cam.Y)
+    #     end
+    # end
     # _print(io, count(isalive, bees))
     tick!(fps)
     # points = [bee.center for bee in bees if isalive(bee)]
     # plot(io, first.(points), last.(points))
 end
 
-task2 = Threads.@spawn while isopen(cam)
-    tags = borrow(POOL) do detector
-        detector(collect(cam.Y))
-    end
-    for tag in tags
-        i = tag.id + 1
-        if i ≤ nbees
-            bee = bees[i]
-            if !isalive(bee)
-                found!(bee, tag.c, CartesianIndex(1, 1))
-            end
-        end
-    end
-end
+# task2 = Threads.@spawn while isopen(cam)
+#     tags = borrow(POOL) do detector
+#         detector(collect(cam.Y))
+#     end
+#     for tag in tags
+#         i = tag.id + 1
+#         if i ≤ nbees
+#             bee = bees[i]
+#             if !isalive(bee)
+#                 found!(bee, tag.c, CartesianIndex(1, 1))
+#             end
+#         end
+#     end
+# end
 
 # _cursor_show(stdout)
 
