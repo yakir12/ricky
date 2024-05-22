@@ -1,4 +1,5 @@
 # TODO: try to easily see how many tags you miss every frame
+# adjust for tag size
 # test the 4 mm or even the 3.5 mm tags
 # connect through oxygen
 # record a demo
@@ -76,7 +77,7 @@ end
 
 
 
-nbees = 200
+nbees = 120
 bees = Bee.(0:nbees - 1)
 
 
@@ -111,7 +112,7 @@ function tick!(fps::FPS{N}) where N
     end
 end
 
-fps = FPS(3)
+# fps = FPS(3)
 
 cam = Camera(camera_mode)
 task1 = Threads.@spawn while isopen(cam)
@@ -121,7 +122,8 @@ task1 = Threads.@spawn while isopen(cam)
             bee(cam.Y)
         end
     end
-    tick!(fps)
+    println(count(isalive, bees))
+    # tick!(fps)
     # points = [bee.center for bee in bees if isalive(bee)]
     # plot(io, first.(points), last.(points))
 end
