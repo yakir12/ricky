@@ -1,7 +1,7 @@
 # const camera_modes = ((w = 990, h = 1332, fps = 120),
-const camera_modes = ((w = 1332, h = 990, fps = 120.05),
-         (w = 2028, h = 1080, fps = 50.03),
-         (w = 2028, h = 1520, fps = 40.01),
+const camera_modes = ((w = 1332, h = 990, fps = 120.048),
+         (w = 2028, h = 1080, fps = 50.0275),
+         (w = 2028, h = 1520, fps = 40.0096),
          (w = 4056, h = 3040, fps = 10.0))
 
 function get_buffer_img(w, h)
