@@ -130,8 +130,18 @@ function tick!(fps::FPS{N}, n::Int) where N
         fps.i = 0
     end
 end
+
+function tick!(fps::FPS{N}, sz) where N
+    fps.i += 1
+    fps.times[fps.i] = n
+    if fps.i == N
+        println(sz)
+        fps.i = 0
+    end
+end
 fps = FPS(round(Int, camera_mode.framerate))
 
+d = 6.5
 cam = Camera(mode)
 task1 = Threads.@spawn while isopen(cam)
     snap!(cam)
@@ -143,9 +153,11 @@ task1 = Threads.@spawn while isopen(cam)
     # _print(io, count(isalive, bees))
     # tick!(fps, count(isalive, bees))
     # points = [bee.center for bee in bees if isalive(bee)]
-    points = [bee.center for bee in bees if bee.id ∈ (12, 117) && isalive(bee)]
-    plot(io, first.(points), last.(points))
+    # plot(io, first.(points), last.(points))
     # plot(io, rotl90(cam.Y))
+    points = [bee.center for bee in bees if bee.id ∈ (12, 117) && isalive(bee)]
+    l = norm(only(diff(points)))
+    tick!(fps, sz .* (d/l))
 end
 
 task2 = Threads.@spawn while isopen(cam)
