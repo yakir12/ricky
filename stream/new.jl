@@ -10,6 +10,8 @@ using OhMyThreads, AprilTags, StaticArrays#, TiledIteration, DataStructures, Ima
 using UnicodePlots
 import REPL
 
+include("camera.jl")
+
 const SVI = SVector{2, Int}
 
 const min_radius::Int = 25
@@ -17,7 +19,6 @@ const widen_radius::Int = 5
 const max_radius::Int = 50
 const mode::CameraMode = fastest
 
-include("camera.jl")
 
 camera_mode = camera_modes[mode]
 const sz::Tuple{Int, Int} = (camera_mode.width, camera_mode.height)
