@@ -15,9 +15,9 @@ const SVI = SVector{2, Int}
 const min_radius::Int = 25
 const widen_radius::Int = 5
 const max_radius::Int = 50
+const mode::CameraMode = fastest
 
-include(joinpath(@__DIR__(), "../server/DetectBees/src/camera.jl"))
-mode = fastest
+include("camera.jl")
 
 camera_mode = camera_modes[mode]
 const sz::Tuple{Int, Int} = (camera_mode.width, camera_mode.height)
@@ -141,7 +141,8 @@ task1 = Threads.@spawn while isopen(cam)
     end
     # _print(io, count(isalive, bees))
     # tick!(fps, count(isalive, bees))
-    points = [bee.center for bee in bees if isalive(bee)]
+    # points = [bee.center for bee in bees if isalive(bee)]
+    points = [bee.center for bee in bees if bee.id ∈ (0, 119) && isalive(bee)]
     plot(io, first.(points), last.(points))
     # plot(io, rotl90(cam.Y))
 end
