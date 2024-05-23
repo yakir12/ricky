@@ -143,7 +143,7 @@ task1 = Threads.@spawn while isopen(cam)
     # _print(io, count(isalive, bees))
     # tick!(fps, count(isalive, bees))
     # points = [bee.center for bee in bees if isalive(bee)]
-    points = [bee.center for bee in bees if bee.id ∈ (0, 119) && isalive(bee)]
+    points = [bee.center for bee in bees if bee.id ∈ (12, 117) && isalive(bee)]
     plot(io, first.(points), last.(points))
     # plot(io, rotl90(cam.Y))
 end
