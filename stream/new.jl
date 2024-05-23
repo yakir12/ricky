@@ -148,8 +148,10 @@ task1 = Threads.@spawn while isopen(cam)
     # plot(io, first.(points), last.(points))
     # plot(io, rotl90(cam.Y))
     points = [bee.center for bee in bees if bee.id ∈ (12, 117) && isalive(bee)]
-    l = norm(only(diff(points)))
-    println(round.(sz .* d ./ l, digits=2))
+    if length(points) == 2
+        l = norm(only(diff(points)))
+        println(round.(sz .* d ./ l, digits=2))
+    end
 end
 
 task2 = Threads.@spawn while isopen(cam)
