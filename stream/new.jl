@@ -91,7 +91,7 @@ function _print(io, x)
     println(out)
 end
 function plot(io, xs, ys)
-    show(io, scatterplot(xs, ys; xlim=(1, camera_mode.width), ylim=(1, camera_mode.height), width = camera_mode.height ÷ 16, height = camera_mode.width ÷ 16))
+    show(io, scatterplot(xs, ys; xlim=(1, camera_mode.width), ylim=(1, camera_mode.height), width = camera_mode.height ÷ 32, height = camera_mode.width ÷ 32))
     out = read(io, String)
     REPL.Terminals.clear(terminal)
     println(out)
