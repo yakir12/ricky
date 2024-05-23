@@ -4,7 +4,7 @@
 # connect through oxygen
 # record a demo
 # update ricky
-using Statistics
+using Statistics, LinearAlgebra
 using OhMyThreads, AprilTags, StaticArrays#, TiledIteration, DataStructures, ImageMorphology
 # using ImageCore, ColorTypes, Sixel, ImageInTerminal, 
 using UnicodePlots
