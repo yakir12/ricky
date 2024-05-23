@@ -17,7 +17,7 @@ const SVI = SVector{2, Int}
 const min_radius::Int = 25
 const widen_radius::Int = 5
 const max_radius::Int = 50
-const mode::CameraMode = fastest
+const mode::CameraMode = fast
 
 
 camera_mode = camera_modes[mode]

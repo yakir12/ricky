@@ -3,7 +3,7 @@ import REPL
 
 include(joinpath(@__DIR__(), "../server/DetectBees/src/camera.jl"))
 
-mode = fastest
+mode = fast
 cam = Camera(mode)
 camera_mode = camera_modes[mode]
 sz = (camera_mode.width, camera_mode.height)
