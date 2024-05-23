@@ -6,7 +6,8 @@
 # update ricky
 using Statistics
 using OhMyThreads, AprilTags, StaticArrays#, TiledIteration, DataStructures, ImageMorphology
-# using ImageCore, ColorTypes, Sixel, ImageInTerminal, UnicodePlots
+# using ImageCore, ColorTypes, Sixel, ImageInTerminal, 
+using UnicodePlots
 import REPL
 
 const SVI = SVector{2, Int}
@@ -89,10 +90,8 @@ function _print(io, x)
     REPL.Terminals.clear(terminal)
     println(out)
 end
-# function plot(io, xs, ys)
-#     show(io, scatterplot(xs, ys; xlim=(1, camera_mode.width), ylim=(1, camera_mode.height), width = camera_mode.height ÷ 16, height = camera_mode.width ÷ 16))
-function plot(io, img)
-    sixel_encode(io, collect(colorview(Gray, normedview(img))))
+function plot(io, xs, ys)
+    show(io, scatterplot(xs, ys; xlim=(1, camera_mode.width), ylim=(1, camera_mode.height), width = camera_mode.height ÷ 16, height = camera_mode.width ÷ 16))
     out = read(io, String)
     REPL.Terminals.clear(terminal)
     println(out)
@@ -140,9 +139,9 @@ task1 = Threads.@spawn while isopen(cam)
         end
     end
     # _print(io, count(isalive, bees))
-    tick!(fps, count(isalive, bees))
-    # points = [bee.center for bee in bees if isalive(bee)]
-    # plot(io, first.(points), last.(points))
+    # tick!(fps, count(isalive, bees))
+    points = [bee.center for bee in bees if isalive(bee)]
+    plot(io, first.(points), last.(points))
     # plot(io, rotl90(cam.Y))
 end
 
