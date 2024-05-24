@@ -11,7 +11,7 @@ arena_r = 149/2
 feeder_r = 14/2
 l = 18
 to_feeder = arena_r - l - feeder_r
-n = 5
+n = 9
 @show 2arena_r/n
 
 fig = Figure()
