@@ -84,6 +84,7 @@ function plot(io, img, points)
     end
     sixel_encode(io, imresize(rgb[r1:r1+100, c1:c2], sz2))
     sixel_encode(io, imresize(rgb, sz2))
+    show(io, rand())
     out = read(io, String)
     REPL.Terminals.clear(terminal)
     println(out)
