@@ -77,14 +77,14 @@ end
 sz2 = (400, 400sz[2] ÷ sz[1])
 r1, c1 = sz .÷ 2 .- 50
 c2 = c1 + 100sz[2] ÷ sz[1]
-function plot(io, img, points)
+function plot(io, img, dims)
     rgb = RGB.(colorview(Gray, normedview(img)))
     for p in points
         draw!(rgb, CirclePointRadius(p[2], p[1], 5), colorant"red")
     end
     sixel_encode(io, imresize(rgb[r1:r1+100, c1:c2], sz2))
     sixel_encode(io, imresize(rgb, sz2))
-    show(io, rand())
+    show(io, dims)
     out = read(io, String)
     REPL.Terminals.clear(terminal)
     println(out)
@@ -101,6 +101,8 @@ io = IOContext(PipeBuffer(), :color=>true)
 nbees = 120
 bees = Bee.(0:nbees - 1)
 
+d = 13*(4+1) - 1 - 2*2
+
 cam = Camera(mode)
 task1 = Threads.@spawn while isopen(cam)
     snap!(cam)
@@ -110,7 +112,14 @@ task1 = Threads.@spawn while isopen(cam)
         end
     end
     points = [bee.center for bee in bees if isalive(bee)]
-    plot(io, cam.Y, points)
+    points2 = [bee.center for bee in bees if bee.id ∈ (12, 117) && isalive(bee)]
+    if length(points2) == 2
+        l = norm(only(diff(points2)))
+        dims = string(round.(sz .* d ./ l, digits=2))
+    else
+        "-"
+    end
+    plot(io, cam.Y, dims)
 end
 
 task2 = Threads.@spawn while isopen(cam)
