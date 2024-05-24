@@ -80,7 +80,7 @@ c2 = c1 + 100sz[2] ÷ sz[1]
 function plot(io, img, points)
     rgb = RGB.(colorview(Gray, normedview(img)))
     for p in points
-        draw!(rgb, CirclePointRadius(p..., 5))
+        draw!(rgb, CirclePointRadius(p[2], p[1], 5), colorant"red")
     end
     sixel_encode(io, imresize(rgb[r1:r1+100, c1:c2], sz2))
     sixel_encode(io, imresize(rgb, sz2))
