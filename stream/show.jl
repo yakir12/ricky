@@ -77,7 +77,7 @@ end
 sz2 = (400, 400sz[2] ÷ sz[1])
 r1, c1 = sz .÷ 2 .- 50
 c2 = c1 + 100sz[2] ÷ sz[1]
-function plot(io, img, dims)
+function plot(io, img, points, dims)
     rgb = RGB.(colorview(Gray, normedview(img)))
     for p in points
         draw!(rgb, CirclePointRadius(p[2], p[1], 5), colorant"red")
@@ -119,7 +119,7 @@ task1 = Threads.@spawn while isopen(cam)
     else
         "-"
     end
-    plot(io, cam.Y, dims)
+    plot(io, cam.Y, points, dims)
 end
 
 task2 = Threads.@spawn while isopen(cam)
