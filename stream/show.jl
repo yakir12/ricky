@@ -2,6 +2,7 @@ using Statistics, LinearAlgebra
 using OhMyThreads, AprilTags, StaticArrays
 using ImageCore, ColorTypes, Sixel, ImageInTerminal, ImageTransformations
 using ImageDraw
+import REPL
 
 include("camera.jl")
 
@@ -72,17 +73,6 @@ function (bee::Bee)(buff)
     return nothing
 end
 
-
-
-
-import REPL
-
-include(joinpath(@__DIR__(), "../server/DetectBees/src/camera.jl"))
-
-mode = slow
-cam = Camera(mode)
-camera_mode = camera_modes[mode]
-sz = (camera_mode.width, camera_mode.height)
 
 sz2 = (400, 400sz[2] ÷ sz[1])
 r1, c1 = sz .÷ 2 .- 50
