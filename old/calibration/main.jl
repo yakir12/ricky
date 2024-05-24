@@ -17,9 +17,8 @@ for θ in 0:π/2:3π/2
     poly!(ax, Circle(to_feeder*Point2f(reverse(sincos(θ))...), feeder_r), color=:gray)
 end
 # poly!(ax, Circle(zero(Point2f), light_r), color=(:yellow, 0.2), strokewidth=0)
-w, h = (10.35, 13.92)
-w, h = (32.07, 24.04)
-w, h = (2arena_r/4, h/w*2arena_r/5)
+w, h = (29,15.44)
+w, h = (2arena_r/5, h/w*2arena_r/5)
 xs = collect(range(0, step = w, length = ceil(Int, 2arena_r/w)))
 xs .-= (xs[end] + w)/2
 ys = collect(range(0, step = h, length = ceil(Int, 2arena_r/h)))
