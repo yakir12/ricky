@@ -11,14 +11,16 @@ arena_r = 149/2
 feeder_r = 14/2
 l = 18
 to_feeder = arena_r - l - feeder_r
-n = 9
-@show 2arena_r/n
+n = 5
+heights = [i => round(2arena_r/i, digits=2) for i in reverse(4:20)]
+@show heights
 
 fig = Figure()
 axs = [Axis(fig[Tuple(CartesianIndices((2,2))[j])...], aspect = DataAspect(), xlabel="X (cm)", ylabel="Y (cm)", title = string(mode)) for (j, mode) in enumerate(instances(CameraMode))]
 for (j, mode) in enumerate(instances(CameraMode))
     camera_mode = camera_modes[mode]
     _w, _h = sort([camera_mode.width, camera_mode.height], rev=true)
+    h2w = _w/_h
     ax = axs[j]
     poly!(ax, Circle(zero(Point2f), arena_r), color=:transparent, strokewidth=2)
     poly!(ax, Circle(zero(Point2f), feeder_r), color=:gray)
@@ -26,8 +28,8 @@ for (j, mode) in enumerate(instances(CameraMode))
         poly!(ax, Circle(to_feeder*Point2f(reverse(sincos(θ))...), feeder_r), color=:gray)
     end
     # poly!(ax, Circle(zero(Point2f), light_r), color=(:yellow, 0.2), strokewidth=0)
-    w = 2arena_r/n
-    h = _h/_w*w
+    h = 2arena_r/n
+    w = h2w*h
     xs = collect(range(0, step = w, length = ceil(Int, 2arena_r/w)))
     xs .-= (xs[end] + w)/2
     ys = collect(range(0, step = h, length = ceil(Int, 2arena_r/h)))
