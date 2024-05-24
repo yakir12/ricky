@@ -11,7 +11,7 @@ arena_r = 149/2
 feeder_r = 14/2
 l = 18
 to_feeder = arena_r - l - feeder_r
-n = 9
+n = 7
 heights = [i => round(2arena_r/i, digits=2) for i in reverse(4:20)]
 @show heights
 
@@ -52,4 +52,5 @@ linkaxes!(axs...)
 save("toprint.pdf", fig)
 
 # fastest : h = 11.46, n = 13, 102
-# fast: h = 16.56, n = 9
+# fast: h = 16.56, n = 9, 41
+# slow: h = 21.29, n = 7, 
