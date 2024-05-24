@@ -1,5 +1,6 @@
 
-# using StaticArrays, LinearAlgebra
+# using StaticArrays, 
+using LinearAlgebra
 using CairoMakie
 
 light_r = 40/2
@@ -18,12 +19,19 @@ end
 # poly!(ax, Circle(zero(Point2f), light_r), color=(:yellow, 0.2), strokewidth=0)
 w, h = (10.35, 13.92)
 w, h = (32.07, 24.04)
+w, h = (2arena_r/5, h/w*2arena_r/5)
 xs = collect(range(0, step = w, length = ceil(Int, 2arena_r/w)))
-xs .-= xs[end]/2
+xs .-= (xs[end] + w)/2
 ys = collect(range(0, step = h, length = ceil(Int, 2arena_r/h)))
-ys .-= ys[end]/2
-for (i, x) in enumerate(xs), (j, y) in enumerate(ys)
-    poly!(ax, Rect(x, y, w, h), color=:transparent, strokewidth=2)
-    text!(ax, x+w/2, y+h/2, text=string(LinearIndices((length(xs), length(ys)))[i, j]), align=(:center, :center))
+ys .-= (ys[end] + h)/2
+i = 0
+for x in xs, y in ys
+    rect = Rect(x, y, w, h)
+    if !all(p -> norm(p) > 0.9arena_r, decompose(Point2f, rect))
+        global i
+        i += 1
+        poly!(ax, rect, color=:transparent, strokewidth=2)
+        text!(ax, x+w/2, y+h/2, text=string(i), align=(:center, :center))
+    end
 end
 save("toprint.pdf", fig)
