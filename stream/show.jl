@@ -112,7 +112,7 @@ task1 = Threads.@spawn while isopen(cam)
         end
     end
     points = [bee.center for bee in bees if isalive(bee)]
-    points2 = [bee.center for bee in bees if bee.id ∈ (12, 117) && isalive(bee)]
+    points2 = [bee.center for bee in bees if bee.id ∈ (12, 0) && isalive(bee)]
     dims = if length(points2) == 2
         l = norm(only(diff(points2)))
         string(round.(sz .* d ./ l, digits=2))
