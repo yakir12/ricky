@@ -101,7 +101,11 @@ io = IOContext(PipeBuffer(), :color=>true)
 nbees = 120
 bees = Bee.(0:nbees - 1)
 
-d = 5.9#13*(4/10+2/10) - 2/10 - 2*2/10
+d = begin
+    tag = 4
+    border = 4/9*2
+    (13tag + 14border - 2*4/2)/10
+end
 
 cam = Camera(mode)
 task1 = Threads.@spawn while isopen(cam)
