@@ -106,7 +106,8 @@ function main(mode::CameraMode; nbees = 120)
             if i ≤ nbees
                 bee = bees[i]
                 if !isalive(bee)
-                    found!(bee, tag.c, CartesianIndex(1, 1))
+                    bee.center = SVI(reverse(round.(Int, tag.c)))
+                    bee.radius = min_radius
                 end
             end
         end
