@@ -12,7 +12,7 @@ include("camera.jl")
 const SVI = SVector{2, Int}
 
 const widen_radius::Int = 5
-const max_radius::Int = 50
+const max_radius::Int = 100
 
 
 function borrow(f::Function, c::Channel)
