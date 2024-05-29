@@ -87,9 +87,10 @@ end
 # end
 
 function main(mode::CameraMode; nbees = 120)
-    bees = Bee.(0:nbees - 1)
-    # fps = FPS(round(Int, camera_modes[mode].framerate))
     cam = Camera(mode)
+    mode, width, height, framerate, min_radius = camera_modes[mode]
+    bees = Bee.(0:nbees - 1, min_radius)
+    # fps = FPS(round(Int, camera_modes[mode].framerate))
     task1 = Threads.@spawn while isopen(cam)
         snap!(cam)
         tforeach(bees) do bee
