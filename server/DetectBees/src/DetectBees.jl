@@ -98,10 +98,9 @@ function main(mode::CameraMode; nbees = 120)
         end
         # tick!(fps)
     end
+    detector = AprilTagDetector(AprilTags.tagStandard41h12)
     task2 = Threads.@spawn while isopen(cam)
-        tags = borrow(POOL) do detector
-            detector(collect(parent(cam.Y)))
-        end
+        tags = detector(collect(parent(cam.Y)))
         for tag in tags
             i = tag.id + 1
             if i ≤ nbees
