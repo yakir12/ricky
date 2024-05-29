@@ -27,7 +27,8 @@ end
 function get_pool(ndetectors)
     pool = Channel{AprilTagDetector}(ndetectors)
     foreach(1:ndetectors) do _
-        put!(pool, AprilTagDetector(AprilTags.tagStandard41h12)) 
+        put!(pool, AprilTagDetector()) 
+        # put!(pool, AprilTagDetector(AprilTags.tagStandard41h12)) 
     end
     return pool
 end
