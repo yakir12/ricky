@@ -96,7 +96,7 @@ function main(mode::CameraMode; nbees = 120)
                 bee(cam.Y)
             end
         end
-        tick!(fps)
+        # tick!(fps)
     end
     task2 = Threads.@spawn while isopen(cam)
         tags = borrow(POOL) do detector
