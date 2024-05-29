@@ -100,7 +100,7 @@ function main(mode::CameraMode; nbees = 120)
     end
     task2 = Threads.@spawn while isopen(cam)
         tags = borrow(POOL) do detector
-            detector(collect(cam.Y))
+            detector(collect(parent(cam.Y)))
         end
         for tag in tags
             i = tag.id + 1
