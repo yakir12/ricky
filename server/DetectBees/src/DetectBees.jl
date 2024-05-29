@@ -1,78 +1,118 @@
 module DetectBees
 
-using Statistics, LinearAlgebra, Dates
-using ColorTypes, StaticArrays, Interpolations, CoordinateTransformations, DataStructures
-using ImageCore, ImageTransformations
-import AprilTags: AprilTagDetector, getAprilTagImage, tag16h5
-using OhMyThreads, TiledIteration
-import AngleBetweenVectors:angle
+# using Statistics, LinearAlgebra
+using OhMyThreads, AprilTags, StaticArrays
+import PaddedViews:PaddedView
+import OffsetArrays:centered
 
 export main
 
-const SV = SVector{2, Float64}
-
-function get_all_indices()
-    out = Dict{Int, Vector{SV}}()
-    for id in 0:29
-        img = getAprilTagImage(id, tag16h5)
-        indices = findall(==(zero(eltype(img))), img)
-        out[id] = SV.(Tuple.(indices))
-    end
-    return out
-end
-
-@enum TagColor black=90 red=0 green=120 blue=240
-
-id2index(id::Int) = id + 1
-color2index(tc::TagColor) = findfirst(==(tc), instances(TagColor))
-idcol2index(id::Int, tc::TagColor) = LinearIndices((30, length(instances(TagColor))))[id2index(id), color2index(tc)]
-
-# @enum TagColor black=90 magenta=294 orange=20 green=120
-const taghues = Dict(tc => reim(cis(deg2rad(Int(tc)))) for tc in instances(TagColor) if tc ≠ black)
-const indices = get_all_indices()
-const rawchannel = rawview ∘ channelview
-const half = LinearMap(SDiagonal(1/2, 1/2))
-
 include("camera.jl")
-include("detect.jl")
 
-function collect_tags!(tags)
-    res = collect.(values.(tags))
-    @async foreach(empty!, tags)
-    return res
-end
+const SVI = SVector{2, Int}
 
-mutable struct FPS{N}
-    i::Int
-    times::MVector{N, UInt64}
-    FPS{N}() where {N} = new(0, MVector{N, UInt64}(1:N))
-end
-FPS(N::Int) = FPS{N}()
+const widen_radius::Int = 5
+const max_radius::Int = 50
 
-function tick!(fps::FPS{N}) where N
-    fps.i += 1
-    fps.times[fps.i] = time_ns()
-    if fps.i == N
-        println(round(Int, 10^9/mean(diff(fps.times))))
-        fps.i = 0
+
+function borrow(f::Function, c::Channel)
+    v = take!(c)
+    try
+        return f(v)
+    finally
+        put!(c, v)
     end
 end
 
-function main(mode)
-    fps = FPS(10)
-    cam = Camera(camera_modes[mode])
-    detector = Detector(2Threads.nthreads())
-    tags = [CircularBuffer{SV}(10_000) for _ in 1:30length(instances(TagColor))]
-    task = Threads.@spawn while isopen(cam)
+function get_pool(ndetectors)
+    pool = Channel{AprilTagDetector}(ndetectors)
+    foreach(1:ndetectors) do _
+        put!(pool, AprilTagDetector(AprilTags.tagStandard41h12)) 
+    end
+    return pool
+end
+
+const POOL = get_pool(20)
+
+mutable struct Bee
+    id::Int
+    center::SVI
+    radius::Int
+    Bee(id::Int) = new(id, SVI(1,1), max_radius)
+end
+
+isalive(b::Bee) = b.radius < max_radius
+
+function found!(bee, tag_c)
+    c = SVI(reverse(round.(Int, tag_c)))
+    bee.center += c .- bee.radius
+    bee.radius = min_radius
+end
+
+function get_cropped(bee, buff)
+    img = centered(buff, Tuple(bee.center))
+    return img[-bee.radius:bee.radius, -bee.radius:bee.radius]
+end
+
+function (bee::Bee)(buff)
+    cropped = get_cropped(bee, buff)
+    tags = borrow(POOL) do detector
+        detector(cropped)
+    end
+    for tag in tags
+        if tag.id == bee.id
+            found!(bee, tag.c)
+            return nothing
+        end
+    end
+    bee.radius += widen_radius
+    return nothing
+end
+
+# mutable struct FPS{N}
+#     i::Int
+#     times::MVector{N, UInt64}
+#     FPS{N}() where {N} = new(0, MVector{N, UInt64}(1:N))
+# end
+# FPS(N::Int) = FPS{N}()
+#
+# function tick!(fps::FPS{N}) where N
+#     fps.i += 1
+#     fps.times[fps.i] = time_ns()
+#     if fps.i == N
+#         println(round(Int, 10^9/mean(diff(fps.times))))
+#         fps.i = 0
+#     end
+# end
+
+function main(mode::CameraMode; nbees = 120)
+    bees = Bee.(0:nbees - 1)
+    # fps = FPS(round(Int, camera_modes[mode].framerate))
+    cam = Camera(mode)
+    task1 = Threads.@spawn while isopen(cam)
         snap!(cam)
-        detect!(tags, detector, cam.Y)
+        tforeach(bees) do bee
+            if isalive(bee)
+                bee(cam.Y)
+            end
+        end
         tick!(fps)
     end
-    return (
-            () -> collect(cam.Y),
-            () -> collect_tags!(tags),
-            task
-           )
+    task2 = Threads.@spawn while isopen(cam)
+        tags = borrow(POOL) do detector
+            detector(collect(cam.Y))
+        end
+        for tag in tags
+            i = tag.id + 1
+            if i ≤ nbees
+                bee = bees[i]
+                if !isalive(bee)
+                    found!(bee, tag.c, CartesianIndex(1, 1))
+                end
+            end
+        end
+    end
+    return (task1, task2)
 end
 
 end

@@ -10,9 +10,7 @@ function get_buffer_img(w, h)
     w2 = 64ceil(Int, w/64) # dimension adjustments to hardware restrictions
     nb = Int(w2*h*3/2) # total number of bytes per img
     buff = Vector{UInt8}(undef, nb)
-    ystart = 1
-    yend = w2*h
-    Y = view(reshape(view(buff, ystart:yend), w2, h), 1:w, h:-1:1)
+    Y = view(reshape(view(buff, 1:w2*h), w2, h), 1:w, h:-1:1)
     return buff, Y
 end
 

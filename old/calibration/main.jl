@@ -11,7 +11,7 @@ arena_r = 149/2
 feeder_r = 14/2
 l = 18
 to_feeder = arena_r - l - feeder_r
-n = 7
+n = 4
 heights = [i => round(2arena_r/i, digits=2) for i in reverse(4:20)]
 @show heights
 
@@ -51,6 +51,12 @@ linkaxes!(axs...)
 
 save("toprint.pdf", fig)
 
+
+# Pardon the work update:
+#
+# I've now managed to build an algorithm that tracks as many as 120 bees with almost no delay whatsoever. This means that the speeds we can get are those of the camera itself. These are 120, 50, 40, and 10 FPS. Each FPS comes with its own spatial resolution and aspect ratio. I've now tested this and it seems like for reliable tracking (disregarding the speed of the bee), we would need 102, 41, 38, and 12 Raspberry Pis for each of the FPS respectively... So! I'll now test speeds a bit, but my guess is that we'll need more than 10 frames per second for these beasts, and therefore we might require about 41 RPIs...
+#
 # fastest : h = 11.46, n = 13, 102
 # fast: h = 16.56, n = 9, 41
-# slow: h = 21.29, n = 7, 
+# slow: h = 21.29, n = 7, 38
+# slowest: h = 37.25, n = 4, 12
