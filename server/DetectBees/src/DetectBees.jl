@@ -38,7 +38,8 @@ mutable struct Bee
     id::Int
     center::SVI
     radius::Int
-    Bee(id::Int) = new(id, SVI(1,1), max_radius)
+    min_radius::Int
+    Bee(id::Int, min_radius) = new(id, SVI(1,1), max_radius, min_radius)
 end
 
 isalive(b::Bee) = b.radius < max_radius
@@ -46,7 +47,7 @@ isalive(b::Bee) = b.radius < max_radius
 function found!(bee, tag_c)
     c = SVI(reverse(round.(Int, tag_c)))
     bee.center += c .- bee.radius
-    bee.radius = min_radius
+    bee.radius = bee.min_radius
 end
 
 function get_cropped(bee, buff)
@@ -107,7 +108,7 @@ function main(mode::CameraMode; nbees = 120)
                 bee = bees[i]
                 if !isalive(bee)
                     bee.center = SVI(reverse(round.(Int, tag.c)))
-                    bee.radius = min_radius
+                    bee.radius = bee.min_radius
                 end
             end
         end
