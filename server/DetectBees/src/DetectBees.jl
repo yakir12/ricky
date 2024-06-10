@@ -1,6 +1,7 @@
 module DetectBees
 
 using Statistics, LinearAlgebra
+using Dates
 using OhMyThreads, AprilTags, StaticArrays
 import PaddedViews:PaddedView
 import OffsetArrays:centered
@@ -16,12 +17,15 @@ const max_radius::Int = 100
 
 const POOL = Ref{Channel{AprilTagDetector}}()
 
+const RECORD = REF{CircularBuffer{Tuple{DateTime, Vector{Tuple{Int, SVI}}}}}()
+
 function __init__()
     ndetectors = 20
     POOL[] = Channel{AprilTagDetector}(ndetectors)
     foreach(1:ndetectors) do _
         put!(POOL[], AprilTagDetector(AprilTags.tagStandard41h12)) 
     end
+    RECORD[] = CircularBuffer{Tuple{DateTime, Vector{Tuple{Int, SVI}}}}(1000)
 end
 
 function detect(img)
@@ -81,6 +85,14 @@ function tick!(fps::FPS{N}) where N
     end
 end
 
+function empty_record()
+    try
+        return copy(RECORD)
+    finally
+        empty!(RECORD)
+    end
+end
+
 function main(mode::CameraMode; nbees = 120)
     cam = Camera(mode)
     mode, width, height, framerate, min_radius = camera_modes[mode]
@@ -88,11 +100,13 @@ function main(mode::CameraMode; nbees = 120)
     fps = FPS(round(Int, framerate))
     task1 = Threads.@spawn while isopen(cam)
         snap!(cam)
-        tforeach(bees) do bee
+        record = tcollect(Tuple{Int, SVI}, bees) do bee
             if isalive(bee)
                 bee(cam.Y)
+                (bee.id, bee.center)
             end
         end
+        push!(RECORD, (now(), record))
         tick!(fps)
     end
     detector = AprilTagDetector(AprilTags.tagStandard41h12)
@@ -109,7 +123,7 @@ function main(mode::CameraMode; nbees = 120)
             end
         end
     end
-    return (task1, task2)
+    return () -> empty_record()
 end
 
 end

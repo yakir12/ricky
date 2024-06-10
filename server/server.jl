@@ -9,7 +9,7 @@ mode = DetectBees.slowest
 # sz = round.(Int, (w, h) ./ 8)
 # const buffer = Matrix{N0f8}(undef, sz)
 
-task1, task2 = main(mode);
+get_tags = main(mode);
 
 # frame() = binary(collect(vec(rawview(imresize!(buffer, normedview(get_Y()))))))
 
