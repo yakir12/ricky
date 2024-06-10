@@ -9,7 +9,7 @@ mode = DetectBees.fastest
 # sz = round.(Int, (w, h) ./ 8)
 # const buffer = Matrix{N0f8}(undef, sz)
 
-get_tags = main(mode);
+get_tags, task1, task2 = main(mode);
 
 # frame() = binary(collect(vec(rawview(imresize!(buffer, normedview(get_Y()))))))
 

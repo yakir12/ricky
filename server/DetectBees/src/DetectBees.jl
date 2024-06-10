@@ -123,7 +123,7 @@ function main(mode::CameraMode; nbees = 120)
             end
         end
     end
-    return () -> empty_record()
+    return (() -> empty_record(), task1, task2)
 end
 
 end
