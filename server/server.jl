@@ -3,7 +3,7 @@ using DetectBees
 using ImageCore, ImageTransformations
 using Oxygen
 
-mode = DetectBees.fastest
+mode = DetectBees.slowest
 
 # w, h, _ = DetectBees.camera_modes[mode]
 # sz = round.(Int, (w, h) ./ 8)
