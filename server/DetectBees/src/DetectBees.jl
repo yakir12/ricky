@@ -1,6 +1,6 @@
 module DetectBees
 
-# using Statistics, LinearAlgebra
+using Statistics, LinearAlgebra
 using OhMyThreads, AprilTags, StaticArrays
 import PaddedViews:PaddedView
 import OffsetArrays:centered
@@ -65,27 +65,27 @@ function (bee::Bee)(buff)
     return nothing
 end
 
-# mutable struct FPS{N}
-#     i::Int
-#     times::MVector{N, UInt64}
-#     FPS{N}() where {N} = new(0, MVector{N, UInt64}(1:N))
-# end
-# FPS(N::Int) = FPS{N}()
-#
-# function tick!(fps::FPS{N}) where N
-#     fps.i += 1
-#     fps.times[fps.i] = time_ns()
-#     if fps.i == N
-#         println(round(Int, 10^9/mean(diff(fps.times))))
-#         fps.i = 0
-#     end
-# end
+mutable struct FPS{N}
+    i::Int
+    times::MVector{N, UInt64}
+    FPS{N}() where {N} = new(0, MVector{N, UInt64}(1:N))
+end
+FPS(N::Int) = FPS{N}()
+
+function tick!(fps::FPS{N}) where N
+    fps.i += 1
+    fps.times[fps.i] = time_ns()
+    if fps.i == N
+        println(round(Int, 10^9/mean(diff(fps.times))))
+        fps.i = 0
+    end
+end
 
 function main(mode::CameraMode; nbees = 120)
     cam = Camera(mode)
     mode, width, height, framerate, min_radius = camera_modes[mode]
     bees = Bee.(0:nbees - 1, min_radius)
-    # fps = FPS(round(Int, camera_modes[mode].framerate))
+    fps = FPS(round(Int, camera_modes[mode].framerate))
     task1 = Threads.@spawn while isopen(cam)
         snap!(cam)
         tforeach(bees) do bee
@@ -93,7 +93,7 @@ function main(mode::CameraMode; nbees = 120)
                 bee(cam.Y)
             end
         end
-        # tick!(fps)
+        tick!(fps)
     end
     detector = AprilTagDetector(AprilTags.tagStandard41h12)
     task2 = Threads.@spawn while isopen(cam)
