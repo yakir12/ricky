@@ -17,7 +17,7 @@ const max_radius::Int = 100
 
 const POOL = Ref{Channel{AprilTagDetector}}()
 
-const RECORD = REF{CircularBuffer{Tuple{DateTime, Vector{Tuple{Int, SVI}}}}}()
+const RECORD = Ref{CircularBuffer{Tuple{DateTime, Vector{Tuple{Int, SVI}}}}}()
 
 function __init__()
     ndetectors = 20
