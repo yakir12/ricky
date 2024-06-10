@@ -25,7 +25,7 @@ function __init__()
     foreach(1:ndetectors) do _
         put!(POOL[], AprilTagDetector(AprilTags.tagStandard41h12)) 
     end
-    RECORD[] = CircularBuffer{Tuple{DateTime, Vector{Tuple{Int, SVI}}}}(1000)
+    RECORD[] = CircularBuffer{Tuple{DateTime, Vector{Tuple{Int, SVI}}}}(1000000)
 end
 
 function detect(img)
