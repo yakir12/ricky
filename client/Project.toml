@@ -1,5 +1,7 @@
 [deps]
+DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
 FreeTypeAbstraction = "663a7486-cb36-511b-a19d-713bb74d65c9"
+GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
 Gtk4 = "9db2cae5-386f-4011-9d63-a5602296539b"
 GtkObservables = "8710efd8-4ad6-11eb-33ea-2d5ceb25a41c"
 HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
@@ -7,3 +9,5 @@ ImageCore = "a09fc81d-aa75-5fe9-8630-4744c3626534"
 ImageDraw = "4381153b-2b60-58ae-a1ba-fd683676385f"
 JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
 JSONSchema = "7d188eb4-7ad8-530c-ae41-71a32a6d4692"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+StructTypes = "856f2bd8-1eba-4b0a-8007-ebc267875bd4"
