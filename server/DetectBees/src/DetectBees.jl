@@ -20,7 +20,7 @@ const POOL = Ref{Channel{AprilTagDetector}}()
 const RECORD = Ref{CircularBuffer{Tuple{DateTime, Vector{Tuple{Int, SVI}}}}}()
 
 function __init__()
-    ndetectors = 20
+    ndetectors = 40
     POOL[] = Channel{AprilTagDetector}(ndetectors)
     foreach(1:ndetectors) do _
         put!(POOL[], AprilTagDetector(AprilTags.tagStandard41h12)) 
