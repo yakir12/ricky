@@ -102,7 +102,7 @@ function main(mode::CameraMode; nbees = 120)
     fps = FPS(round(Int, framerate))
     task1 = Threads.@spawn while isopen(cam)
         snap!(cam)
-        record = tcollect(Tuple{Int, SVI}, (id_center(bee(cam.Y)) for bee in bees if isalive(bee)))
+        record = tcollect((id_center(bee(cam.Y)) for bee in bees if isalive(bee)))
         push!(RECORD[], (now(), record))
         tick!(fps)
     end
