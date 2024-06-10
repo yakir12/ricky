@@ -24,13 +24,11 @@ function __init__()
     end
 end
 
-function borrow(f::Function, c::Channel)
-    v = take!(c)
-    try
-        return f(v)
-    finally
-        put!(c, v)
-    end
+function detect(img)
+    detector = take!(POOL[])
+    tags = detector(img)
+    put!(POOL[], detector)
+    return tags
 end
 
 mutable struct Bee
@@ -56,9 +54,7 @@ end
 
 function (bee::Bee)(buff)
     cropped = get_cropped(bee, buff)
-    tags = borrow(POOL[]) do detector
-        detector(cropped)
-    end
+    tags = detect(cropped)
     for tag in tags
         if tag.id == bee.id
             found!(bee, tag.c)
