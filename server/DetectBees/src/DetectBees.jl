@@ -56,7 +56,7 @@ end
 
 function (bee::Bee)(buff)
     cropped = get_cropped(bee, buff)
-    tags = borrow(POOL) do detector
+    tags = borrow(POOL[]) do detector
         detector(cropped)
     end
     for tag in tags
