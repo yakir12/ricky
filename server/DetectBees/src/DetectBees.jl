@@ -87,9 +87,9 @@ end
 
 function empty_record()
     try
-        return copy(RECORD)
+        return copy(RECORD[])
     finally
-        empty!(RECORD)
+        empty!(RECORD[])
     end
 end
 
@@ -106,7 +106,7 @@ function main(mode::CameraMode; nbees = 120)
                 (bee.id, bee.center)
             end
         end
-        push!(RECORD, (now(), record))
+        push!(RECORD[], (now(), record))
         tick!(fps)
     end
     detector = AprilTagDetector(AprilTags.tagStandard41h12)
