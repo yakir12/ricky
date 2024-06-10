@@ -56,36 +56,36 @@ function get_cropped(bee, buff)
     return img[-bee.radius:bee.radius, -bee.radius:bee.radius]
 end
 
+id_center(b::Bee) = (b.id, b.center)
+
 function (bee::Bee)(buff)
     cropped = get_cropped(bee, buff)
     tags = detect(cropped)
     for tag in tags
         if tag.id == bee.id
             found!(bee, tag.c)
-            return bee
+            return id_center(bee)
         end
     end
     bee.radius += widen_radius
-    return bee
+    return id_center(bee)
 end
 
-id_center(b::Bee) = (b.id, b.center)
-
-mutable struct FPS{N}
-    i::Int
-    times::MVector{N, UInt64}
-    FPS{N}() where {N} = new(0, MVector{N, UInt64}(1:N))
-end
-FPS(N::Int) = FPS{N}()
-
-function tick!(fps::FPS{N}) where N
-    fps.i += 1
-    fps.times[fps.i] = time_ns()
-    if fps.i == N
-        println(round(Int, 10^9/mean(diff(fps.times))))
-        fps.i = 0
-    end
-end
+# mutable struct FPS{N}
+#     i::Int
+#     times::MVector{N, UInt64}
+#     FPS{N}() where {N} = new(0, MVector{N, UInt64}(1:N))
+# end
+# FPS(N::Int) = FPS{N}()
+#
+# function tick!(fps::FPS{N}) where N
+#     fps.i += 1
+#     fps.times[fps.i] = time_ns()
+#     if fps.i == N
+#         println(round(Int, 10^9/mean(diff(fps.times))))
+#         fps.i = 0
+#     end
+# end
 
 function empty_record()
     try
@@ -99,14 +99,14 @@ function main(mode::CameraMode; nbees = 120)
     cam = Camera(mode)
     mode, width, height, framerate, min_radius = camera_modes[mode]
     bees = Bee.(0:nbees - 1, min_radius)
-    fps = FPS(round(Int, framerate))
+    # fps = FPS(round(Int, framerate))
     task1 = Threads.@spawn while isopen(cam)
         snap!(cam)
         record = tmap(Tuple{Int, SVI}, filter(isalive, bees)) do bee
-            id_center(bee(cam.Y))
+            bee(cam.Y)
         end
         push!(RECORD[], (now(), record))
-        tick!(fps)
+        # tick!(fps)
     end
     detector = AprilTagDetector(AprilTags.tagStandard41h12)
     task2 = Threads.@spawn while isopen(cam)
