@@ -14,6 +14,15 @@ const SVI = SVector{2, Int}
 const widen_radius::Int = 5
 const max_radius::Int = 100
 
+const POOL = Ref{Channel{AprilTagDetector}}()
+
+function __init__()
+    ndetectors = 20
+    POOL[] = Channel{AprilTagDetector}(ndetectors)
+    foreach(1:ndetectors) do _
+        put!(POOL[], AprilTagDetector(AprilTags.tagStandard41h12)) 
+    end
+end
 
 function borrow(f::Function, c::Channel)
     v = take!(c)
@@ -23,17 +32,6 @@ function borrow(f::Function, c::Channel)
         put!(c, v)
     end
 end
-
-function get_pool(ndetectors)
-    pool = Channel{AprilTagDetector}(ndetectors)
-    foreach(1:ndetectors) do _
-        put!(pool, AprilTagDetector()) 
-        # put!(pool, AprilTagDetector(AprilTags.tagStandard41h12)) 
-    end
-    return pool
-end
-
-const POOL = get_pool(20)
 
 mutable struct Bee
     id::Int

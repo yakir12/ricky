@@ -10,7 +10,7 @@ function get_buffer_img(w, h)
     w2 = 64ceil(Int, w/64) # dimension adjustments to hardware restrictions
     nb = Int(w2*h*3/2) # total number of bytes per img
     buff = Vector{UInt8}(undef, nb)
-    Y = PaddedView(0x00, view(reshape(view(buff, 1:w2*h), w2, h), 1:w, h:-1:1), (max_radius:w + max_radius + 1, max_radius:h + max_radius + 1))
+    Y = PaddedView(0x00, view(reshape(view(buff, 1:w2*h), w2, h), 1:w, h:-1:1), (1 - max_radius:w + max_radius, 1 - max_radius:h + max_radius))
     return buff, Y
 end
 
