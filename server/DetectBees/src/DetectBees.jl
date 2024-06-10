@@ -1,7 +1,7 @@
 module DetectBees
 
 using Statistics, LinearAlgebra
-using Dates
+using Dates, DataStructures
 using OhMyThreads, AprilTags, StaticArrays
 import PaddedViews:PaddedView
 import OffsetArrays:centered
