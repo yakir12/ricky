@@ -7,7 +7,7 @@ const ip = "http://192.168.0.158:8000" # at home
 const SVI = SVector{2, Int}
 function get_state()
     r = HTTP.request("GET", "$ip/bees")
-    return JSON3.read(String(r.body), Vector{Tuple{DateTime, Vector{Tuple{Int, SVI}}}})
+    return JSON3.read(String(r.body), Tuple{DateTime, Vector{Tuple{Int, SVI}}})
 end
 
 fig = Figure()
@@ -15,9 +15,8 @@ ax = Axis(fig[1,1], aspect=DataAspect(), limits = ((1,990),(1, 1332)))
 xys = Observable(SVI[])
 scatter!(ax, xys)
 task = @async while isopen(fig.scene)
-    for (t, frame) in get_state()
-        xys[] = last.(frame)
-    end
+    t, frame = get_state()
+    xys[] = last.(frame)
 end
 
 

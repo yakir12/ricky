@@ -90,7 +90,7 @@ function main(mode::CameraMode; nbees = 120)
     cam = Camera(mode)
     mode, width, height, framerate, min_radius = camera_modes[mode]
     bees = Bee.(0:nbees - 1, min_radius)
-    # fps = FPS(round(Int, framerate))
+    fps = FPS(round(Int, framerate))
     task1 = Threads.@spawn while isopen(cam)
         snap!(cam)
         data = tmap(Tuple{Int, SVI}, filter(isalive, bees)) do bee
@@ -98,7 +98,7 @@ function main(mode::CameraMode; nbees = 120)
         end
         pkg = (now(), data)
         put!(chn, pkg)
-        # tick!(fps)
+        tick!(fps)
     end
     detector = AprilTagDetector(AprilTags.tagStandard41h12)
     task2 = Threads.@spawn while isopen(cam)
