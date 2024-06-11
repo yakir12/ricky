@@ -1,7 +1,7 @@
 module DetectBees
 
 using Statistics, LinearAlgebra
-using Dates, DataStructures
+using Dates#, DataStructures
 using OhMyThreads, AprilTags, StaticArrays
 import PaddedViews:PaddedView
 import OffsetArrays:centered
@@ -17,7 +17,6 @@ const max_radius::Int = 100
 
 const POOL = Ref{Channel{AprilTagDetector}}()
 
-const RECORD = Ref{CircularBuffer{Tuple{DateTime, Vector{Tuple{Int, SVI}}}}}()
 
 function __init__()
     ndetectors = 40
@@ -25,7 +24,6 @@ function __init__()
     foreach(1:ndetectors) do _
         put!(POOL[], AprilTagDetector(AprilTags.tagStandard41h12)) 
     end
-    RECORD[] = CircularBuffer{Tuple{DateTime, Vector{Tuple{Int, SVI}}}}(1000)
 end
 
 function detect(img)
@@ -71,41 +69,35 @@ function (bee::Bee)(buff)
     return id_center(bee)
 end
 
-# mutable struct FPS{N}
-#     i::Int
-#     times::MVector{N, UInt64}
-#     FPS{N}() where {N} = new(0, MVector{N, UInt64}(1:N))
-# end
-# FPS(N::Int) = FPS{N}()
-#
-# function tick!(fps::FPS{N}) where N
-#     fps.i += 1
-#     fps.times[fps.i] = time_ns()
-#     if fps.i == N
-#         println(round(Int, 10^9/mean(diff(fps.times))))
-#         fps.i = 0
-#     end
-# end
+mutable struct FPS{N}
+    i::Int
+    times::MVector{N, UInt64}
+    FPS{N}() where {N} = new(0, MVector{N, UInt64}(1:N))
+end
+FPS(N::Int) = FPS{N}()
 
-function empty_record()
-    try
-        return copy(RECORD[])
-    finally
-        empty!(RECORD[])
+function tick!(fps::FPS{N}) where N
+    fps.i += 1
+    fps.times[fps.i] = time_ns()
+    if fps.i == N
+        println(round(Int, 10^9/mean(diff(fps.times))))
+        fps.i = 0
     end
 end
 
 function main(mode::CameraMode; nbees = 120)
+    chn = Channel{Tuple{DateTime, Vector{Tuple{Int, SVI}}}}(1000)
     cam = Camera(mode)
     mode, width, height, framerate, min_radius = camera_modes[mode]
     bees = Bee.(0:nbees - 1, min_radius)
     # fps = FPS(round(Int, framerate))
     task1 = Threads.@spawn while isopen(cam)
         snap!(cam)
-        record = tmap(Tuple{Int, SVI}, filter(isalive, bees)) do bee
+        data = tmap(Tuple{Int, SVI}, filter(isalive, bees)) do bee
             bee(cam.Y)
         end
-        push!(RECORD[], (now(), record))
+        pkg = (now(), data)
+        put!(chn, pkg)
         # tick!(fps)
     end
     detector = AprilTagDetector(AprilTags.tagStandard41h12)
@@ -122,7 +114,7 @@ function main(mode::CameraMode; nbees = 120)
             end
         end
     end
-    return (() -> empty_record(), task1, task2)
+    return (() -> take!(chn), task1, task2)
 end
 
 end
