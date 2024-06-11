@@ -19,19 +19,19 @@ const POOL = Ref{Channel{AprilTagDetector}}()
 
 
 function __init__()
-    ndetectors = 40
-    POOL[] = Channel{AprilTagDetector}(ndetectors)
-    foreach(1:ndetectors) do _
-        put!(POOL[], AprilTagDetector(AprilTags.tagStandard41h12)) 
-    end
+    # ndetectors = 40
+    # POOL[] = Channel{AprilTagDetector}(ndetectors)
+    # foreach(1:ndetectors) do _
+    #     put!(POOL[], AprilTagDetector(AprilTags.tagStandard41h12)) 
+    # end
 end
 
-function detect(img)
-    detector = take!(POOL[])
+function detect(img, pool)
+    detector = take!(pool)
     try
         return detector(img)
     finally
-        put!(POOL[], detector)
+        put!(pool, detector)
     end
 end
 
@@ -58,9 +58,9 @@ end
 
 id_center(b::Bee) = (b.id, b.center)
 
-function (bee::Bee)(buff)
+function (bee::Bee)(buff, pool)
     cropped = get_cropped(bee, buff)
-    tags = detect(cropped)
+    tags = detect(cropped, pool)
     for tag in tags
         if tag.id == bee.id
             found!(bee, tag.c)
@@ -89,6 +89,13 @@ end
 
 function main(mode::CameraMode; nbees = 120)
     chn = Channel{Tuple{DateTime, Vector{Tuple{Int, SVI}}}}(1000)
+
+    ndetectors = 40
+    pool = Channel{AprilTagDetector}(ndetectors)
+    foreach(1:ndetectors) do _
+        put!(pool, AprilTagDetector(AprilTags.tagStandard41h12)) 
+    end
+
     cam = Camera(mode)
     mode, width, height, framerate, min_radius = camera_modes[mode]
     bees = Bee.(0:nbees - 1, min_radius)
@@ -96,7 +103,7 @@ function main(mode::CameraMode; nbees = 120)
     task1 = Threads.@spawn while isopen(cam)
         snap!(cam)
         data = tmap(Tuple{Int, SVI}, filter(isalive, bees)) do bee
-            bee(cam.Y)
+            bee(cam.Y, pool)
         end
         pkg = (now(), data)
         put!(chn, pkg)
@@ -115,7 +122,7 @@ function main(mode::CameraMode; nbees = 120)
                 end
             end
         end
-        sleep(1)
+        sleep(0.1)
     end
     return (() -> take!(chn), task1, task2)
 end
