@@ -15,18 +15,7 @@ const SVI = SVector{2, Int}
 const widen_radius::Int = 5
 const max_radius::Int = 100
 
-const POOL = Ref{Channel{AprilTagDetector}}()
-
-
-function __init__()
-    # ndetectors = 40
-    # POOL[] = Channel{AprilTagDetector}(ndetectors)
-    # foreach(1:ndetectors) do _
-    #     put!(POOL[], AprilTagDetector(AprilTags.tagStandard41h12)) 
-    # end
-end
-
-function detect(img, pool)
+function detect_tags(img, pool)
     detector = take!(pool)
     try
         return detector(img)
@@ -58,9 +47,9 @@ end
 
 id_center(b::Bee) = (b.id, b.center)
 
-function (bee::Bee)(buff, pool)
+function detect_bee!(bee, buff, pool)
     cropped = get_cropped(bee, buff)
-    tags = detect(cropped, pool)
+    tags = detect_tags(cropped, pool)
     for tag in tags
         if tag.id == bee.id
             found!(bee, tag.c)
@@ -87,15 +76,17 @@ function tick!(fps::FPS{N}) where N
     end
 end
 
-function main(mode::CameraMode; nbees = 120)
-    chn = Channel{Tuple{DateTime, Vector{Tuple{Int, SVI}}}}(1000)
-
-    ndetectors = 40
+function get_pool(ndetectors)
     pool = Channel{AprilTagDetector}(ndetectors)
     foreach(1:ndetectors) do _
         put!(pool, AprilTagDetector(AprilTags.tagStandard41h12)) 
     end
+    return pool
+end
 
+function main(mode::CameraMode; nbees = 120)
+    store = Channel{Tuple{DateTime, Vector{Tuple{Int, SVI}}}}(1000)
+    pool = get_pool(20)
     cam = Camera(mode)
     mode, width, height, framerate, min_radius = camera_modes[mode]
     bees = Bee.(0:nbees - 1, min_radius)
@@ -103,10 +94,10 @@ function main(mode::CameraMode; nbees = 120)
     task1 = Threads.@spawn while isopen(cam)
         snap!(cam)
         data = tmap(Tuple{Int, SVI}, filter(isalive, bees)) do bee
-            bee(cam.Y, pool)
+            detect_bee!(bee, cam.Y, pool)
         end
         pkg = (now(), data)
-        put!(chn, pkg)
+        put!(store, pkg)
         tick!(fps)
     end
     detector = AprilTagDetector(AprilTags.tagStandard41h12)
@@ -124,7 +115,7 @@ function main(mode::CameraMode; nbees = 120)
         end
         sleep(0.1)
     end
-    return (() -> take!(chn), task1, task2)
+    return (() -> take!(store), task1, task2)
 end
 
 end
