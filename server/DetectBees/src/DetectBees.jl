@@ -115,6 +115,7 @@ function main(mode::CameraMode; nbees = 120)
                 end
             end
         end
+        sleep(1)
     end
     return (() -> take!(chn), task1, task2)
 end
