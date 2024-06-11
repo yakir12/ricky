@@ -28,9 +28,11 @@ end
 
 function detect(img)
     detector = take!(POOL[])
-    tags = detector(img)
-    put!(POOL[], detector)
-    return tags
+    try
+        return detector(img)
+    finally
+        put!(POOL[], detector)
+    end
 end
 
 mutable struct Bee
