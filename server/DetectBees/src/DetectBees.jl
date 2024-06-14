@@ -19,7 +19,7 @@ mutable struct Bee
     id::Int
     center::SVI
     radius::Int
-    Bee(id::Int, min_radius) = new(id, SVI(1,1), max_radius)
+    Bee(id::Int) = new(id, SVI(1,1), max_radius)
 end
 
 isalive(b::Bee) = b.radius < max_radius
