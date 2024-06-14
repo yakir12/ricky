@@ -19,7 +19,7 @@ task = @async while isopen(fig.scene)
     xys[] = last.(frame)
 end
 
-for i in 1:100
+for i in 1:1000
     get_state()
     println(i)
 end

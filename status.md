@@ -1,6 +1,4 @@
-I have an ok way to test performance.
-I can change the settings of the camera to 4 distinct modes to see which works best for our needs.
-I'd like to try and change the way I test it so it resembles more what we will eventually do in the real experiment.
-My goal is to be able to confidently answer which settings works best for us, and how many RPI we'll need.
-
+# Bee detection
+My goal was to make as much progress as possible into investigating how to best track >100 individual bees using Apriltags.
+I determined that the ideal Apriltag family for our purposes is the `standard41h12` family as it is equally small as the `36h11` but more reliable. I managed to create an algorithm that detects up to 120 bees at a rate of 80 FPS, which means that the camera-speeds are not hindered by the detection. Using this Apriltag family also means that there are (near) zero false detections. All communications between the Raspberry Pi unit that detect the bees and the central computer that stores the detections will be via Ethernet (currently WiFi) and are therefore near instantaneous. This means that the central computer will be able to handle scores (indeed thousands) of RPI units at the same time. All this points to a highly scalable solution that could be scaled up or down as needed. In the current setup, an arena with a diameter of 1.5 meters and tags that are 4 mm wide, I would recommend about 40 RPI units. Further investigation might conclude that a smaller number of units would be sufficient, but currently, my recommendation for a reliable system is indeed 40 RPIs.
 
