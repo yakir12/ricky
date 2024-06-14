@@ -1,8 +1,8 @@
 using Dates, HTTP, JSON3, StaticArrays
 using GLMakie 
 
-# const ip = "http://192.168.251.165:8000" # through ethernet
-const ip = "http://192.168.0.158:8000" # at home
+const ip = "http://192.168.189.165:8000" # through ethernet
+# const ip = "http://192.168.0.158:8000" # at home
 
 const SVI = SVector{2, Int}
 function get_state()
@@ -17,6 +17,11 @@ scatter!(ax, xys)
 task = @async while isopen(fig.scene)
     t, frame = get_state()
     xys[] = last.(frame)
+end
+
+for i in 1:100
+    get_state()
+    println(i)
 end
 
 

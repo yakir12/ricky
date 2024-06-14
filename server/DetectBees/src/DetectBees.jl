@@ -83,6 +83,10 @@ function get_pool(ndetectors)
     return pool
 end
 
+function get_data(store)
+    Threads.@spawn :interactive take!(store)
+end
+
 function main(mode::CameraMode; nbees = 120)
     min_radius = min_radii[mode]
     store = Channel{Tuple{DateTime, Vector{Tuple{Int, SVI}}}}(1000)
@@ -117,7 +121,8 @@ function main(mode::CameraMode; nbees = 120)
         end
         sleep(0.1)
     end
-    return (() -> take!(store), task1, task2)
+    # return (() -> take!(store), task1, task2)
+    return (() -> get_data(store), task1, task2)
 end
 
 end
