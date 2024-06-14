@@ -84,7 +84,7 @@ function get_pool(ndetectors)
 end
 
 function get_data(store)
-    Threads.@spawn :interactive take!(store)
+    take!(store)
 end
 
 function main(mode::CameraMode; nbees = 120)
